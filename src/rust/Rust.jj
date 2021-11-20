@@ -1,0 +1,105 @@
+/**
+ * JavaCC template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(Rust)
+package rust;
+import java.io.*;
+
+public class Rust
+{
+  public static void main(String args []) throws ParseException, FileNotFoundException
+  {
+     Token token; //Creo el token sobre el que se itera
+    
+    InputStream input = new FileInputStream("src/rust/prueba.txt");
+    SimpleCharStream stream = new SimpleCharStream(input);
+    
+    RustTokenManager tokenManager = new RustTokenManager(stream); //Creo el manager de los token
+
+	token = tokenManager.getNextToken(); //primer token
+	
+	while(token.kind != RustConstants.EOF) {
+		System.out.println("token: "+token.image +"  "+ tokenImage[token.kind]); //Imprimo la info
+		token = tokenManager.getNextToken();
+	}
+ }
+}
+
+PARSER_END(Rust)
+
+SKIP :
+{
+  " "
+| "\r"
+| "\t"
+| "\n"
+}
+
+TOKEN:
+{
+	<#COMMENT_1: ("/**"(~["*","/"])*"*/") >
+	|<#COMMENT_2: ("//"(~["\n"])*) >
+	| < COMMENT: (< COMMENT_1 >|< COMMENT_2 >) >
+}
+
+TOKEN : /* OPERATORS */
+{
+	  <MULT_DIV: ("*"|"/"|"%") >
+	| <ADD_MIN: ("+"|"-") >
+	|<RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
+	| < ASSIGNMENT: "=" >
+}
+
+TOKEN: //SEPARATORS
+{
+	<SEMICOLON: ";">
+	|<COMA: ",">
+	| < DOT:"." >
+	| < POINTS: ":" >
+	|<OPEN_PAR: "(">
+	|<CLOSE_PAR: ")">
+	| < OPEN_CURL: "{" >
+	| < CLOSE_CURL: "}" >
+	}
+
+TOKEN: //Palabaras reservadas
+{
+	< FUNCTION : "fn" >
+	|< PRINT: "println!" > 
+}
+
+
+TOKEN: //NUMBER
+{
+  	<INT_NUMBER: (<DIGIT>)+>
+	|<REAL_NUMBER: ((<DIGIT>)*(".")(<DIGIT>)+)>
+}
+
+TOKEN: //TIPOS
+{
+	< LET: "let" >
+	|< MUT: "mut" >
+	| < SIGNED: ("i8"|"i16"|"i32"|"i64"|"i128"|"isize") >
+	| < UNSIGNED: ("u8"|"u16"|"u32"|"u64"|"u128"|"usize") >
+	| < FLOAT: ("f32"|"f64") >
+	| < BOOLEAN: "bool" >
+	| < STRING: "String" >
+	| < TRUE_FALSE: "true"|"false" >
+}
+
+TOKEN : //IDENTIFIER
+{
+  	<IDENTIFIER: (<LETTER>)(<LETTER>|<DIGIT>)*>
+	| < #DIGIT : ["0"-"9"] >
+	|<#LETTER:(["A"-"Z", "a"-"z"])>
+	| < LITERAL_STRING:"\""(~["\""])*"\"" >
+	| < CHARACTER:("'"< LETTER >"'") >
+}
+
+
+
