@@ -53,6 +53,7 @@ TOKEN : /* OPERATORS */
 	| <ADD_MIN: ("+"|"-") >
 	|<RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
 	| < ASSIGNMENT: "=" >
+	| < RETURN: "->" >		//PREGUNTAR DUDA
 }
 
 TOKEN: //SEPARATORS
@@ -65,12 +66,22 @@ TOKEN: //SEPARATORS
 	|<CLOSE_PAR: ")">
 	| < OPEN_CURL: "{" >
 	| < CLOSE_CURL: "}" >
+	| < OPEN_BRACK: "[" >
+	| < CLOSE_BRACK: "]" >
 	}
 
 TOKEN: //Palabaras reservadas
 {
 	< FUNCTION : "fn" >
-	|< PRINT: "println!" > 
+	|< PRINT: "println!" >
+	| < IF : "if" >
+	| < ELSE: "else" >
+	| < LOOP: "loop" >
+	| <BREAK: "break" >
+	| < MAIN: "main" >
+	| < WHILE: "while" >
+	| < FOR: "for" >
+	| < IN: "in" >
 }
 
 
@@ -79,6 +90,13 @@ TOKEN: //NUMBER
   	<INT_NUMBER: (<DIGIT>)+>
 	|<REAL_NUMBER: ((<DIGIT>)*(".")(<DIGIT>)+)>
 }
+
+TOKEN://POINTERS
+{
+	< DIRECTION_POINT: "&" >
+}
+
+
 
 TOKEN: //TIPOS
 {
@@ -90,16 +108,17 @@ TOKEN: //TIPOS
 	| < BOOLEAN: "bool" >
 	| < STRING: "String" >
 	| < TRUE_FALSE: "true"|"false" >
+	| < CONST: "const" >
 }
 
 TOKEN : //IDENTIFIER
 {
-  	<IDENTIFIER: (<LETTER>)(<LETTER>|<DIGIT>)*>
+  	<IDENTIFIER: ("'"|<LETTER>|<DIGIT>|< BAR >)*> //Cambie la definición de identifier
+  	//para permitir identificadores como 'counting_up
 	| < #DIGIT : ["0"-"9"] >
 	|<#LETTER:(["A"-"Z", "a"-"z"])>
+	| < #BAR: (	"-"|"_") >
 	| < LITERAL_STRING:"\""(~["\""])*"\"" >
 	| < CHARACTER:("'"< LETTER >"'") >
 }
-
-//Comenterio añadido
 
