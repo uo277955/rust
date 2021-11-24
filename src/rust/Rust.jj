@@ -10,10 +10,17 @@ PARSER_BEGIN(Rust)
 package rust;
 import java.io.*;
 
+
+
+
 public class Rust
 {
+
+
+
   public static void main(String args []) throws ParseException, FileNotFoundException
   {
+    /**
      Token token; //Creo el token sobre el que se itera
     
     InputStream input = new FileInputStream("src/rust/prueba.txt");
@@ -27,7 +34,18 @@ public class Rust
 		System.out.println("token: "+token.image +"  "+ tokenImage[token.kind]); //Imprimo la info
 		token = tokenManager.getNextToken();
 	}
+	*/
+
+
+// Para poder seguir el parser
+	InputStream input = new FileInputStream("src/rust/prueba.txt");
+    Rust parser = new Rust(input);
+    
+
+    parser.start();
  }
+
+
 }
 
 PARSER_END(Rust)
@@ -101,14 +119,15 @@ TOKEN://POINTERS
 TOKEN: //TIPOS
 {
 	< LET: "let" >
-	|< MUT: "mut" >
-	| < SIGNED: ("i8"|"i16"|"i32"|"i64"|"i128"|"isize") >
-	| < UNSIGNED: ("u8"|"u16"|"u32"|"u64"|"u128"|"usize") >
-	| < FLOAT: ("f32"|"f64") >
-	| < BOOLEAN: "bool" >
-	| < STRING: "String" >
+	| < MUT: "mut" >
+	| < #SIGNED: ("i8"|"i16"|"i32"|"i64"|"i128"|"isize") >
+	| < #UNSIGNED: ("u8"|"u16"|"u32"|"u64"|"u128"|"usize") >
+	| < #FLOAT: ("f32"|"f64") >
+	| < #BOOLEAN: "bool" >
+	| < #STRING: "String" >
 	| < TRUE_FALSE: "true"|"false" >
 	| < CONST: "const" >
+	| < TYPE: (< SIGNED >|< UNSIGNED >|< FLOAT >|< BOOLEAN >|< STRING >) >
 }
 
 TOKEN : //IDENTIFIER
@@ -116,9 +135,99 @@ TOKEN : //IDENTIFIER
   	<IDENTIFIER: ("'"|<LETTER>|<DIGIT>|< BAR >)*> //Cambie la definición de identifier
   	//para permitir identificadores como 'counting_up
 	| < #DIGIT : ["0"-"9"] >
-	|<#LETTER:(["A"-"Z", "a"-"z"])>
+	| <#LETTER:(["A"-"Z", "a"-"z"])>
 	| < #BAR: (	"-"|"_") >
 	| < LITERAL_STRING:"\""(~["\""])*"\"" >
 	| < CHARACTER:("'"< LETTER >"'") >
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////// Aqui empezamos el analisis sintactico ////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+void start(): { }
+{
+  	{ System.out.println("Start-> program EOF"); }
+	program() <EOF>
+	{
+		System.out.println("El programa es correcto.");
+		//symbolTable.print();
+	}
+}
+
+
+void program(): { }
+{
+	{ System.out.println("program-> functions"); }
+		functions()
+}
+
+void functions(): { }
+{
+  { System.out.println("functions-> function function_p"); }
+	function() function_p()
+}
+
+void function(): {}
+{
+  { System.out.println("function-> declaration body"); }
+	declaration() //body()
+}
+
+void function_p(): { }
+{
+  { System.out.println("function_p-> functions "); }
+	functions()
+	| { System.out.println("function_p-> { }"); } { }
+}
+
+void declaration(): {}
+{
+  { System.out.println("declaration-> fn signature"); }
+	< FUNCTION > signature()
+}
+
+
+void signature(): {}
+{
+	{ System.out.println("signature-> IDENTIFIER OPEN_PAR parameters CLOSE_PAR RETURN OPEN_PAR type CLOSE_PAR"); } 
+	< IDENTIFIER> < OPEN_PAR> parameters() < CLOSE_PAR > < RETURN > < OPEN_PAR> type() < CLOSE_PAR>
+}
+
+void type(): { }
+{
+  	{ System.out.println("type-> TYPE"); }
+  	< TYPE>
+	| { System.out.println("type-> { }"); } { }
+}
+
+void parameters():{}
+{
+  { System.out.println("parameters-> attribute attribute_p"); } 
+	attribute() attribute_p()
+	| { System.out.println("parameters-> { }"); } { } 
+}
+
+
+void attribute_p(): {}
+{
+  	{ System.out.println("attribute_p-> COMA parameters attribute_p"); }
+  	< COMA >parameters() attribute_p()
+	| { System.out.println("attribute_p-> { }"); }  { } 
+}
+
+void attribute(): {}
+{
+  	{ System.out.println("attribute-> TYPE IDENTIFIER"); } 
+	< TYPE > < POINTS > <IDENTIFIER > 
+}
+
+/**
+void body(): { }
+{
+  
+}
+*/
 
