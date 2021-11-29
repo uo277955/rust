@@ -302,9 +302,13 @@ void stmt():{}
  function_call()< SEMICOLON > //Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna función sin que sea final de linea x = fn()+3;
 | { System.out.println("stmt -> print_stmt");}
  print_stmt()
-|{ System.out.println("stmt -> function_call_object");}
+|LOOKAHEAD(2)
+{ System.out.println("stmt -> function_call_object");}
 function_call_object()< SEMICOLON >
 | { System.out.println("stmt-> if_stmt"); } if_stmt()
+| { System.out.println("stmt-> while_stmt"); } while_stmt()
+| { System.out.println("stmt-> increase_counter_stmt"); } increase_counter_stmt()
+| { System.out.println("stmt-> loop_stmt"); } loop_stmt()
 }
 /**
 Assignment stmt that could be mutable
@@ -518,3 +522,21 @@ void boolean_operand():{}
 }
 
 
+void while_stmt(): { }
+{
+  { System.out.println("while_stmt-> WHILE condition body_while"); }
+	< WHILE > condition() < OPEN_CURL > list_stmt() < CLOSE_CURL >
+}
+
+
+void increase_counter_stmt(): { }
+{
+	{ System.out.println("increase_counter_stmt-> IDENTIFIER ADD_MIN ASSIGNMENT expresion SEMICOLON"); }
+	< IDENTIFIER > < ADD_MIN > < ASSIGNMENT> expresion() < SEMICOLON >
+}
+
+void loop_stmt(): { }
+{
+	{ System.out.println("loop_stmt-> LOOP OPEN_CURL list_stmt CLOSE_CURL"); }
+	< LOOP > < OPEN_CURL > list_stmt() < CLOSE_CURL >
+}
