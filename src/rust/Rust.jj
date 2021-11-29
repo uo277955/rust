@@ -56,22 +56,20 @@ SKIP :
 | "\r"
 | "\t"
 | "\n"
+|<COMMENT_2: ("//"(~["\n"])*) >
 }
 
-TOKEN:
-{
-	<#COMMENT_1: ("/**"(~["*","/"])*"*/") >
-	|<#COMMENT_2: ("//"(~["\n"])*) >
-	| < COMMENT: (< COMMENT_1 >|< COMMENT_2 >) >
-}
 
 TOKEN : /* OPERATORS */
 {
 	  <MULT_DIV: ("*"|"/"|"%") >
 	| <ADD_MIN: ("+"|"-") >
-	|<RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
+	| <RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
 	| < ASSIGNMENT: "=" >
-	| < RETURN: "->" >		//PREGUNTAR DUDA
+	| < RETURN: "->" >
+	| < AND: "&&" >
+	| < OR: "||">
+	| < NEGATIONAL_OP: "!" >
 }
 
 TOKEN: //SEPARATORS
@@ -91,12 +89,11 @@ TOKEN: //SEPARATORS
 TOKEN: //Palabaras reservadas
 {
 	< FUNCTION : "fn" >
-	|< PRINT: "println!" >
+	|< PRINT: ("println!"|"print!") >
 	| < IF : "if" >
 	| < ELSE: "else" >
 	| < LOOP: "loop" >
 	| <BREAK: "break" >
-	| < MAIN: "main" >
 	| < WHILE: "while" >
 	| < FOR: "for" >
 	| < IN: "in" >
@@ -132,7 +129,7 @@ TOKEN: //TIPOS
 
 TOKEN : //IDENTIFIER
 {
-  	<IDENTIFIER: ("'"|<LETTER>|<DIGIT>|< BAR >)*> //Cambie la definición de identifier
+  	<IDENTIFIER: ("'"|<LETTER>|<DIGIT>|< BAR >)*> //Cambie la definicion de identifier
   	//para permitir identificadores como 'counting_up
 	| < #DIGIT : ["0"-"9"] >
 	| <#LETTER:(["A"-"Z", "a"-"z"])>
@@ -146,7 +143,10 @@ TOKEN : //IDENTIFIER
 //////////////////////////////// Aqui empezamos el analisis sintactico ////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+/**
+Comienzo del programa, se lee un programa y se termina con EOF
+Its assigned the action of notify that the program is correct
+*/
 void start(): { }
 {
   	{ System.out.println("Start-> program EOF"); }
@@ -157,52 +157,79 @@ void start(): { }
 	}
 }
 
-
+/**
+A program is composed of functions
+*/
 void program(): { }
 {
 	{ System.out.println("program-> functions"); }
 		functions()
 }
-
+/**
+Functions can be one function or more
+*/
 void functions(): { }
 {
   { System.out.println("functions-> function function_p"); }
 	function() function_p()
 }
-
+/**
+A function is composed by a declaration and a body
+*/
 void function(): {}
 {
   { System.out.println("function-> declaration body"); }
-	declaration() //body()
+	declaration() body()
 }
-
+/**
+We use this one to delete the left-recursivity in functions
+*/
 void function_p(): { }
 {
   { System.out.println("function_p-> functions "); }
 	functions()
-	| { System.out.println("function_p-> { }"); } { }
+	| { System.out.println("function_p-> { }"); }
+	{ }
 }
-
+/**
+The declaration is composed of the token fn + the signature of the function
+*/
 void declaration(): {}
 {
   { System.out.println("declaration-> fn signature"); }
 	< FUNCTION > signature()
 }
 
-
+/**
+the signature starts with IDENTIFIER (the name of the function) a list of parameters between parenthesis and the final
+of the signature that can be a return or not.
+*/
 void signature(): {}
 {
-	{ System.out.println("signature-> IDENTIFIER OPEN_PAR parameters CLOSE_PAR RETURN OPEN_PAR type CLOSE_PAR"); } 
-	< IDENTIFIER> < OPEN_PAR> parameters() < CLOSE_PAR > < RETURN > < OPEN_PAR> type() < CLOSE_PAR>
+	{ System.out.println("signature-> IDENTIFIER OPEN_PAR parameters CLOSE_PAR final_signature"); } 
+	< IDENTIFIER> < OPEN_PAR> parameters() < CLOSE_PAR > final_signature() 
 }
 
-void type(): { }
+/**
+THE FINAL SIGNATURE COULD BE:
+ -> tipo
+ -> () //It means that there arent nothing returning
+ {}
+*/
+void final_signature(): { }
 {
-  	{ System.out.println("type-> TYPE"); }
-  	< TYPE>
-	| { System.out.println("type-> { }"); } { }
+  LOOKAHEAD(2)
+  { System.out.println("final_signature-> RETURN TYPE"); } 
+	< RETURN > <TYPE >
+	|{ System.out.println("final_signature-> RETURN OPEN_PAR CLOSE_PAR"); } 
+	< RETURN ><OPEN_PAR ><CLOSE_PAR >
+	|{ System.out.println("final_signature-> { }"); } 
+	{ } 
 }
 
+/**
+ parameters of a function, one or more attributes
+*/
 void parameters():{}
 {
   { System.out.println("parameters-> attribute attribute_p"); } 
@@ -210,24 +237,284 @@ void parameters():{}
 	| { System.out.println("parameters-> { }"); } { } 
 }
 
-
+/**
+aatributes separated by a coma
+*/
 void attribute_p(): {}
 {
   	{ System.out.println("attribute_p-> COMA parameters attribute_p"); }
   	< COMA >parameters() attribute_p()
 	| { System.out.println("attribute_p-> { }"); }  { } 
 }
-
+/**
+An attribute is like - >  x:i32
+*/
 void attribute(): {}
 {
-  	{ System.out.println("attribute-> TYPE IDENTIFIER"); } 
-	< TYPE > < POINTS > <IDENTIFIER > 
+  	{ System.out.println("attribute-> IDENTIFIER POINTS TYPE"); } 
+	< IDENTIFIER > < POINTS > <TYPE > 
 }
 
 /**
+Body of the function, that starts and ends with curly parenthesis
+*/
 void body(): { }
 {
-  
+  {System.out.println("body -> OPEN_CURL list_stmt CLOSE_CURL");}
+	< OPEN_CURL > list_stmt() < CLOSE_CURL >
 }
+
+ /**
+List_stmt could be one ore more stmt
+ */
+void list_stmt():{}
+{
+  {System.out.println("list_stmt -> stmt stmt_p");}
+  stmt() stmt_p()
+}
+/**
+To delete the recursivity in list_stmt
 */
+void stmt_p():{}
+{
+  {System.out.println("stmt_p -> list_stmt");}
+	list_stmt()
+	|{System.out.println("stmt_p -> { }");}
+	{ }
+}
+/**
+There could be a lot of stmt:
+	assignment_stmt() - > __ = _____
+	declaration_stmt() - > type identifier;
+	functioncall() - > funcion1()
+	print_stmt() - > println!()
+*/
+void stmt():{}
+{
+  LOOKAHEAD(4)
+  {System.out.println("stmt - > assignment_stmt");}
+ assignment_stmt()
+ |LOOKAHEAD(2)
+  {System.out.println("stmt - > declaration_stmt");}
+ declaration_stmt()
+ |LOOKAHEAD(2)
+ {System.out.println("stmt - > function_call");}
+ function_call()< SEMICOLON > //Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna función sin que sea final de linea x = fn()+3;
+| { System.out.println("stmt -> print_stmt");}
+ print_stmt()
+|{ System.out.println("stmt -> function_call_object");}
+function_call_object()< SEMICOLON >
+| { System.out.println("stmt-> if_stmt"); } if_stmt()
+}
+/**
+Assignment stmt that could be mutable
+let x = 3;
+let mut x=3;
+x=3;
+let x:i32 = 4
+let mut x: i32 = 4
+*/
+void assignment_stmt():{}
+{
+  {System.out.println("assignment_stmt  -> (declaration)? IDENTIFIER (<POINTS ><TYPE >)? ASSIGNMENT expresion SEMICOLON");}
+	(< LET > (<MUT >)? )? <IDENTIFIER >(< POINTS ><TYPE >)?<ASSIGNMENT >expresion() < SEMICOLON >
+}
+/**
+Declaration stmt that could be mutable
+let x;
+let mut x;
+let x: i32;
+*/
+void declaration_stmt(): { }
+{
+  {System.out.println("declaration_stmt  -> LET MUTABLE? IDENTIFIER (<POINTS ><TYPE >)? SEMICOLON");}
+	< LET > (<MUT >)?  < IDENTIFIER >(< POINTS ><TYPE >)? <SEMICOLON >
+}
+
+
+/**
+Operands 
+*/
+void operand():{}
+{
+  {System.out.println("operand -> INT_NUMBER");}
+  < INT_NUMBER >
+  |{System.out.println("operand -> REAL_NUMBER");}
+  < REAL_NUMBER >
+  |LOOKAHEAD(2)
+  {System.out.println("operand -> function_call_object");}
+	function_call_object()
+  | {System.out.println("operand -> LITERAL_STRING");}
+  < LITERAL_STRING >
+   | LOOKAHEAD(2)
+   {System.out.println("operand -> function_call");}
+  function_call()
+   | {System.out.println("operand -> IDENTIFIER");}
+  < IDENTIFIER >
+
+}
+
+/**
+function_call - > function(parameters)
+*/
+void function_call():{}
+{
+  {System.out.println("function_call -> IDENTIFIER OPEN_PAR a_parameters CLOSE_PAR");}
+	< IDENTIFIER ><OPEN_PAR > a_parameters() <CLOSE_PAR >
+}
+/**
+Parameters of a function call
+*/
+void a_parameters():{}
+{
+  {System.out.println("a_parameters -> operand a_parameters_p");}
+	operand()a_parameters_p()
+	|{System.out.println("a_parameters -> { }");}
+	 { }
+}
+/**
+To delete the recursivity in a_parameters
+*/
+void a_parameters_p():{}
+{
+  {System.out.println("a_parameters_p -> COMA a_parameters");}
+	< COMA >a_parameters()
+	|{System.out.println("a_parameters_p -> { }");}
+	{ }
+}
+/**
+print_stmt :
+println!("This is an example")
+println!(" { }", 3)
+*/
+void print_stmt():{}
+{
+  {System.out.println("print_stmt -> PRINT OPEN PAR LITERAL_STRING (COMA operand)? CLOSE_PAR SEMICOLON ");}
+	< PRINT ><OPEN_PAR ><LITERAL_STRING >(< COMA > operand())?< CLOSE_PAR ><SEMICOLON >
+}
+/**
+Expresion of type x+3+4...
+*/
+void expresion():{}
+{
+  {System.out.println("expresion - > mult_div_expresion expresion_p");}
+	multi_div_expresion() expresion_p()
+}
+/**
+ operand with another mult_div expr_p
+*/
+void multi_div_expresion():{}
+{
+  {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
+	operand() multi_div_expr_p()
+}
+/**
+	To create the operations
+*/
+void multi_div_expr_p():{}
+{
+  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
+	< MULT_DIV > operand() multi_div_expr_p()
+	|{System.out.println("multi_div_expr_p - > { }");}
+	 { }
+}
+/**
+	To create the operations
+*/
+void expresion_p():{}
+{
+  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
+	< ADD_MIN > operand() expresion_p()
+	|{System.out.println("expresion_p -> { }");}
+	{ }
+}
+/**
+Call from an object.
+
+spaces.len()
+spaces.trim().size()
+*/
+void function_call_object():{}
+{
+  {System.out.println("function_call_object - > IDENTIFIER (DOT FUNCTION_CALL)+");}
+	< IDENTIFIER >(<DOT >function_call())+
+}
+
+
+
+
+
+
+
+
+
+void if_stmt():{}
+{
+  	{ System.out.println("if_stmt-> IF condition list_stmt final_if"); }
+	< IF> condition() body_if()
+}
+
+void final_if():{}
+{
+  LOOKAHEAD(2)
+  { System.out.println("final_if-> ELSE IF condition OPEN_CURL list_stmt"); }
+	< ELSE > < IF > condition() body_if()
+	| { System.out.println("final_if->ELSE list_stmt "); } < ELSE > < OPEN_CURL > list_stmt() < CLOSE_CURL >
+}
+
+void body_if(): { }
+{
+  { System.out.println("body_if-> OPEN_CURL list_stmt CLOSE_CURL final_if"); }
+	< OPEN_CURL > list_stmt() < CLOSE_CURL >final_if()
+}
+
+void condition():{}
+{
+  LOOKAHEAD(2)
+  	{ System.out.println("condition-> comparison"); }
+	comparison()
+	| { System.out.println("condition-> boolean_expr"); } boolean_expr()
+}
+
+void comparison():{}
+{
+  	{ System.out.println("comparison-> expresion RELATIONAL_OP expresion"); }
+	expresion() < RELATIONAL_OP> expresion()
+}
+
+void boolean_expr():{}
+{
+  	{ System.out.println("boolean_expr-> and_expr boolean_expr_p"); }
+	and_expr() boolean_expr_p()
+}
+
+void boolean_expr_p():{}
+{
+  	{ System.out.println("boolean_expr_p-> OR and_expr boolean_expr_p"); }
+	< OR> and_expr() boolean_expr_p()
+	| { System.out.println("boolean_expr_p-> { }"); } { }
+}
+
+void and_expr():{}
+{
+  	{ System.out.println("and_expr-> boolean_operand and_expr_p"); }
+	boolean_operand() and_expr_p()
+}
+
+void and_expr_p():{}
+{
+  { System.out.println("and_expr_p-> AND boolean_operand and_expr_p"); }
+  < AND> boolean_operand() and_expr_p()
+  | { System.out.println("and_expr_p-> { }"); } { }
+}
+
+void boolean_operand():{}
+{
+  LOOKAHEAD(2)
+  	{ System.out.println("boolean_operand-> comparison"); }
+	comparison()
+	| { System.out.println("boolean_operand-> NEGATIONAL_OP operand"); } < NEGATIONAL_OP > operand()
+	| { System.out.println("boolean_operand-> operand"); } operand()
+}
+
 
