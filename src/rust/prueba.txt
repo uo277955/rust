@@ -1,59 +1,47 @@
+  struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+	}
+	
+	    struct User {
+    active: bool,
+    username: String,
+    email: String,
+    sign_in_count: u64,
+	}
+
 fn main() {
-    let x = 5;
+    let sum = 5 + 10;
 
+    // subtraction
+    let difference = 95.5 - 4.3;
 
-	let n = 5;
+    // multiplication
+    let product = 4 * 30;
 
-    if n < 0 {
-        print!("{} is negative", n);
-    } else if n > 0 {
-        print!("{} is positive", n);
-    } else {
-        print!("{} is zero", n);
-    }
+{
+    // division
+    let quotient = 56.7 / 32.2;
+    let floored = 2 / 3; // Results in 0
 
+}
 
-	while n < 101 {
-        if n % 15 == 0 {
-            println!("fizzbuzz");
-        } else if n % 3 == 0 {
-            println!("fizz");
-        } else if n % 5 == 0 {
-            println!("buzz");
-        } else {
-            println!("{}", n);
-        }
+let xs: [i32; 5] = [1, pita, morcilles, gatu, 8];
 
-        // Increment counter
-        n += 1;
+    // remainder
+    let remainder = 43 % 5;
+    
+    for element in a {
+        println!("the value is: {}", element);
     }
     
-    
-    loop {
-        count += 1;
-
-        if count == 3 {
-            println!("three");
-
-        }
-
-        println!("{}", count);
-
-        if count == 5 {
-            println!("OK, that's enough");
-
-            // Exit this loop
-            break;
-        }
+    User {
+        email,
+        username,
+        active: true,
+        sign_in_count: 1,
     }
-
-
-    let x = x + 1;
-
-	let mut spaces = "   ";
-    spaces = spaces.len();
-    let guess: u32 = x.parse().expect("Not a number!");
-    println!("The value of x is: {}", x);
-    let x = 2.0; // f64
 
 }
