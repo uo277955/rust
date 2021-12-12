@@ -78,8 +78,8 @@ TOKEN: //SEPARATORS
 	|<COMA: ",">
 	| < DOT:"." >
 	| < POINTS: ":" >
-	|<OPEN_PAR: "(">
-	|<CLOSE_PAR: ")">
+	| <OPEN_PAR: "(">
+	| <CLOSE_PAR: ")">
 	| < OPEN_CURL: "{" >
 	| < CLOSE_CURL: "}" >
 	| < OPEN_BRACK: "[" >
@@ -98,6 +98,7 @@ TOKEN: //Palabaras reservadas
 	| < FOR: "for" >
 	| < IN: "in" >
 	| < STRUCT: "struct" >
+	| < RETURN_ST: "return" >
 }
 
 
@@ -146,6 +147,8 @@ TOKEN : //IDENTIFIER
 //////////////////////////////// Aqui empezamos el analisis sintactico ////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+///START OF THE PROGRAM
+
 /**
 Comienzo del programa, se lee un programa y se termina con EOF
 Its assigned the action of notify that the program is correct
@@ -173,15 +176,15 @@ void program(): { }
 		functions()
 }
 
-
+///DECLARATION OF STRUCTURES---------------------------------------------------------------------------------------------------------------
 
 /**
 There could be one or more structures
 */
 void structures(): { }
 {
-	{ System.out.println("structure-> struct struct_p"); }
-	struct() struct_p()
+	{ System.out.println("structures-> struct struct_p"); }
+	struct() struct_p() 
 }
 
 
@@ -198,938 +201,8 @@ void struct_p(): { }
 	{ }
 }
 
-
-
-
 /**
-Functions can be one function or more
-*/
-void functions(): { }
-{
-  { System.out.println("functions-> function function_p"); }
-	function() function_p()
-}
-
-
-
-
-/**
-A function is composed by a declaration and a body
-*/
-void function(): {}
-{
-  { System.out.println("function-> declaration body"); }
-	declaration() body()
-}
-
-
-
-
-/**
-We use this one to delete the left-recursivity in functions
-*/
-void function_p(): { }
-{
-  { System.out.println("function_p-> functions "); }
-	functions()
-	| { System.out.println("function_p-> { }"); }
-	{ }
-}
-
-
-
-
-/**
-The declaration is composed of the token fn + the signature of the function
-*/
-void declaration(): {Token t;}
-{
-  { System.out.println("declaration-> fn signature"); }
-	t= < FUNCTION> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	signature()
-}
-
-
-
-
-/**
-the signature starts with IDENTIFIER (the name of the function) a list of parameters between parenthesis and the final
-of the signature that can be a return or not.
-*/
-void signature(): {Token t; Token t2; Token t3;}
-{
-	{ System.out.println("signature-> IDENTIFIER OPEN_PAR parameters CLOSE_PAR final_signature"); } 
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	parameters()
-	t3= < CLOSE_PAR> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	final_signature() 
-}
-
-
-
-/**
-THE FINAL SIGNATURE COULD BE:
- -> tipo
- -> () //It means that there arent nothing returning
- {}
-*/
-void final_signature(): {Token t; Token t2; Token t3;}
-{
-  LOOKAHEAD(2)
-  { System.out.println("final_signature-> RETURN TYPE"); } 
-	t= < RETURN> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < TYPE> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	|{ System.out.println("final_signature-> RETURN OPEN_PAR CLOSE_PAR"); } 
-	t= < RETURN> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < CLOSE_PAR> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	
-	|{ System.out.println("final_signature-> { }"); } 
-	{ } 
-}
-
-
-
-/**
- parameters of a function, one or more attributes
-*/
-void parameters():{}
-{
-  { System.out.println("parameters-> attribute attribute_p"); } 
-	attribute() attribute_p()
-	| { System.out.println("parameters-> { }"); } { } 
-}
-
-
-
-
-/**
-aatributes separated by a coma
-*/
-void attribute_p(): {Token t;}
-{
-  	{ System.out.println("attribute_p-> COMA parameters attribute_p"); }
-  	t= < COMA> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	parameters() attribute_p()
-
-	| { System.out.println("attribute_p-> { }"); }  { } 
-}
-
-
-
-
-/**
-An attribute is like - >  x:i32
-*/
-void attribute(): {Token t; Token t2; Token t3;}
-{
-  	{ System.out.println("attribute-> IDENTIFIER POINTS TYPE"); } 
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < POINTS> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < TYPE> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	} 
-}
-
-
-
- /**
-List_stmt could be one ore more stmt
- */
-void list_stmt():{}
-{
-  {System.out.println("list_stmt -> stmt stmt_p");}
-  stmt() stmt_p()
-}
-
-
-
-/**
-Block of statements delimeted by curly parenthesis
-FOR EXAMPLE
-{
-	let x = 12;
-}
-*/
-void body(): {Token t; Token t2;}
-{
-  {System.out.println("body - > OPEN_CURL list_stmt CLOSE_CURL");}
-	t= < OPEN_CURL> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	list_stmt()
-	t2= < CLOSE_CURL> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-}
-
-
-
-
-
-/**
-To delete the recursivity in list_stmt
-*/
-void stmt_p():{}
-{
-
-	 {System.out.println("stmt_p -> list_stmt");}
-	list_stmt()
-	|{System.out.println("stmt_p -> { }");}
-	{ }
-}
-
-
-
-
-/**
-There could be a lot of stmt:
-	assignment_stmt() - > __ = _____
-	declaration_stmt() - > type identifier;
-	functioncall() - > funcion1()
-	print_stmt() - > println!()
-*/
-void stmt():{Token t; Token t2;}
-{
-	 LOOKAHEAD(4)
-	 {System.out.println("stmt - > assignment_stmt");}
-	 assignment_stmt()
-	 |LOOKAHEAD(3)
-	 { System.out.println("stmt-> arrays_stmt"); }
-		arrays_stmt()
-	 |LOOKAHEAD(2)
-	  {System.out.println("stmt - > declaration_stmt");}
-	 	declaration_stmt()
-	 |LOOKAHEAD(2)
-	 {System.out.println("stmt - > function_call");}
-	 	function_call()
-	 	t= < SEMICOLON> {
-		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-	        symbolTable.addSymbolEntry(entry);
-		}//Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna funcion sin que sea final de linea x = fn()+3;
- 	 |{ System.out.println("stmt -> print_stmt");}
-	 	print_stmt()
-	 |LOOKAHEAD(2)
-	 { System.out.println("stmt -> function_call_object");}
-		function_call_object()
-		t= < SEMICOLON > {
-		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-	        symbolTable.addSymbolEntry(entry);
-		}
-	 | { System.out.println("stmt-> if_stmt"); }
-		if_stmt()
-	 | { System.out.println("stmt-> while_stmt"); }
-		while_stmt()
-	 | { System.out.println("stmt-> increase_counter_stmt"); }
-		increase_counter_stmt()
-	 | { System.out.println("stmt-> loop_stmt"); }
-		loop_stmt()
-	 | { System.out.println("stmt-> for_stmt"); }
-		for_stmt()
-	 | { System.out.println("stmt-> body"); }
-		//Its used when a group of statements appears in the middle of the code delimeted by curly parenth
-		body()
-	 | { System.out.println("stmt-> assign_structure_stmt"); }
-		assign_structure_stmt()
-}
-
-
-
-
-
-
-/**
-Assignment stmt that could be mutable
-let x = 3;
-let mut x=3;
-x=3;
-let x:i32 = 4
-let mut x: i32 = 4
-*/
-void assignment_stmt():{Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7;}
-{
-  {System.out.println("assignment_stmt  -> (declaration)? IDENTIFIER (<POINTS ><TYPE >)? ASSIGNMENT expresion SEMICOLON");}
-	(t= < LET> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	(t2= < MUT> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	})? )?
-	t3= < IDENTIFIER> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	(t4= < POINTS> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	)?
-	t6= < ASSIGNMENT> {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-	expresion()
-	 t7= < SEMICOLON > {
-	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
-        symbolTable.addSymbolEntry(entry7);
-	}
-}
-
-
-
-
-/**
-Declaration stmt that could be mutable
-let x;
-let mut x;
-let x: i32;
-*/
-void declaration_stmt(): { Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7; Token t8;}
-{
-  LOOKAHEAD(4)
-  {System.out.println("declaration_stmt  -> LET MUTABLE? IDENTIFIER (<POINTS ><TYPE >)? SEMICOLON");}
-	t= < LET > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	(t2= < MUT > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	)?
-	t3= < IDENTIFIER> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	(t4= < POINTS> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	)?
-	t6= < SEMICOLON > {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-
-
-	
-	| t= < LET> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IDENTIFIER> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < POINTS> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < OPEN_BRACK> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	t6= < SEMICOLON > {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-	t7= < INT_NUMBER > {
-	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
-        symbolTable.addSymbolEntry(entry7);
-	}
-	t8= < CLOSE_BRACK > {
-	  	Position position8 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry8 = new SymbolTableEntry(token.image, position8);
-        symbolTable.addSymbolEntry(entry8);
-	}
-}
-
-
-
-/**
-Operands 
-*/
-void operand():{Token t; Token t2; Token t3; Token t4; Token t5;}
-{
-  {System.out.println("operand -> INT_NUMBER");}
-  t= < INT_NUMBER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-  |{System.out.println("operand -> REAL_NUMBER");}
-  t2= < REAL_NUMBER > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-  |LOOKAHEAD(2)
-  {System.out.println("operand -> function_call_object");}
-	function_call_object()
-  | {System.out.println("operand -> LITERAL_STRING");}
-  t3= < LITERAL_STRING> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-   | LOOKAHEAD(2)
-   {System.out.println("operand -> function_call");}
-  function_call()
-   | {System.out.println("operand -> IDENTIFIER");}
-   t4= < IDENTIFIER> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	|{System.out.println("operand -> TRUE_FALSE");}
-	t5= < TRUE_FALSE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-}
-
-
-
-
-
-/**
-function_call - > function(parameters)
-*/
-void function_call():{Token t; Token t2; Token t3;}
-{
-  {System.out.println("function_call -> IDENTIFIER OPEN_PAR a_parameters CLOSE_PAR");}
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	a_parameters()
-	t3= < CLOSE_PAR> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-}
-
-
-
-
-/**
-Parameters of a function call
-*/
-void a_parameters():{}
-{
-  {System.out.println("a_parameters -> operand a_parameters_p");}
-	operand()a_parameters_p()
-	|{System.out.println("a_parameters -> { }");}
-	 { }
-}
-
-
-
-
-/**
-To delete the recursivity in a_parameters
-*/
-void a_parameters_p():{Token t;}
-{
-  {System.out.println("a_parameters_p -> COMA a_parameters");}
-	t= < COMA > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	a_parameters()
-	
-	|{System.out.println("a_parameters_p -> { }");}
-	{ }
-}
-
-
-
-
-/**
-print_stmt :
-println!("This is an example")
-println!(" { }", 3)
-*/
-void print_stmt():{Token t; Token t2; Token t3; Token t4; Token t5; Token t6;}
-{
-  {System.out.println("print_stmt -> PRINT OPEN PAR LITERAL_STRING (COMA operand)? CLOSE_PAR SEMICOLON ");}
-	t= < PRINT > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < LITERAL_STRING > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	(t4= < COMA > {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	operand())?
-	t5= < CLOSE_PAR > {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	t6= < SEMICOLON > {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-}
-
-
-
-
-
-/**
-Expresion of type x+3+4...
-*/
-void expresion():{}
-{
-  {System.out.println("expresion - > mult_div_expresion expresion_p");}
-	multi_div_expresion() expresion_p()
-}
-
-
-
-
-/**
- operand with another mult_div expr_p
-*/
-void multi_div_expresion():{}
-{
-  {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
-	operand() multi_div_expr_p()
-}
-
-
-
-
-
-/**
-	To create the operations
-*/
-void multi_div_expr_p():{Token t;}
-{
-  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
-	t= < MULT_DIV > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	operand() multi_div_expr_p()
-
-	|{System.out.println("multi_div_expr_p - > { }");}
-	 { }
-}
-
-
-
-
-
-/**
-	To create the operations
-*/
-void expresion_p():{Token t;}
-{
-  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
-	t= < ADD_MIN > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	operand() expresion_p()
-	
-	|{System.out.println("expresion_p -> { }");}
-	{ }
-}
-
-
-
-
-
-
-/**
-Call from an object.
-spaces.len()
-spaces.trim().size()
-*/
-void function_call_object():{Token t; Token t2;}
-{
-  {System.out.println("function_call_object - > IDENTIFIER (DOT FUNCTION_CALL)+");}
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	(t2= < DOT > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	function_call())+
-}
-
-
-
-
-
-
-
-
-/**
-	Create a conditional sentence
-*/
-void if_stmt():{Token t;}
-{
-  	{ System.out.println("if_stmt-> IF condition body_if"); }
-	t= < IF > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	condition() body_if()
-}
-
-
-
-
-/**
-	
-*/
-void final_if():{Token t; Token t2;}
-{
-  LOOKAHEAD(2)
-  { System.out.println("final_if-> ELSE IF condition body_if"); }
-	t= < ELSE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IF > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	condition() body_if()
-
-	| { System.out.println("final_if->ELSE body "); }
-	t= < ELSE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	body()
-}
-
-
-
-void body_if(): { }
-{
-  { System.out.println("body_if-> body final_if"); }
-	body()final_if()
-}
-
-
-
-
-void condition():{}
-{
-  LOOKAHEAD(2)
-  	{ System.out.println("condition-> comparison"); }
-	comparison()
-	| { System.out.println("condition-> boolean_expr"); } boolean_expr()
-}
-
-
-
-
-void comparison():{Token t;}
-{
-  	{ System.out.println("comparison-> expresion RELATIONAL_OP expresion"); }
-	expresion()
-	t= < RELATIONAL_OP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	expresion()
-}
-
-
-
-
-void boolean_expr():{}
-{
-  	{ System.out.println("boolean_expr-> and_expr boolean_expr_p"); }
-	and_expr() boolean_expr_p()
-}
-
-
-
-
-void boolean_expr_p():{Token t;}
-{
-  	{ System.out.println("boolean_expr_p-> OR and_expr boolean_expr_p"); }
-	t= < OR > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	and_expr() boolean_expr_p()
-
-	| { System.out.println("boolean_expr_p-> { }"); } { }
-}
-
-
-
-
-void and_expr():{}
-{
-  	{ System.out.println("and_expr-> boolean_operand and_expr_p"); }
-	boolean_operand() and_expr_p()
-}
-
-
-
-
-void and_expr_p():{Token t;}
-{
-  { System.out.println("and_expr_p-> AND boolean_operand and_expr_p"); }
-  t= < AND > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	boolean_operand() and_expr_p()
-
-  | { System.out.println("and_expr_p-> { }"); } { }
-}
-
-
-
-
-void boolean_operand():{Token t;}
-{
-  LOOKAHEAD(2)
-  	{ System.out.println("boolean_operand-> comparison"); }
-	comparison()
-
-	| { System.out.println("boolean_operand-> NEGATIONAL_OP operand"); }
-	t= < NEGATIONAL_OP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	operand()
-
-	| { System.out.println("boolean_operand-> operand"); } operand()
-}
-
-
-
-
-void while_stmt(): {Token t;}
-{
-  { System.out.println("while_stmt-> WHILE condition body_while"); }
-	t= < WHILE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	condition() body()
-}
-
-
-void increase_counter_stmt(): {Token t; Token t2; Token t3; Token t4;}
-{
-	{ System.out.println("increase_counter_stmt-> IDENTIFIER ADD_MIN ASSIGNMENT expresion SEMICOLON"); }
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < ADD_MIN > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < ASSIGNMENT > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	expresion()
-	t4= < SEMICOLON > {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-}
-
-
-
-
-
-void loop_stmt(): {Token t;}
-{
-	{ System.out.println("loop_stmt-> LOOP OPEN_CURL list_stmt CLOSE_CURL"); }
-	t= < LOOP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	body()
-}
-
-
-
-
-
-/**
-For stmt that defines the loop for.
-*/
-void for_stmt(): { Token t; Token t2; Token t3; Token t4;}
-{
-  { System.out.println("for_stmt - > FOR IDENTIFIER IN IDENTIFIER body"); }
-	t= < FOR > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IDENTIFIER> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < IN > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < IDENTIFIER> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	body()
-}
-
-
-
-
-
-/**
-Struct
+Declaration of the struct that is outside the body of the function
 */
 void struct(): {Token t; Token t2; Token t3; Token t4;}
 {
@@ -1201,8 +274,1100 @@ void declaration_struct(): {Token t; Token t2; Token t3; Token t4;}
 	}
 }
 
+///DECLARATION OF THE FUNCTIONS-------------------------------------------------------------------------------------------------------------------------
 
 
+/**
+Functions can be one function or more
+There are two types of functions, normal functions, and return functions
+*/
+void functions(): { }
+{
+  { System.out.println("functions-> type_function function_p"); }
+	type_function() function_p()
+}
+
+
+/**
+We use this one to delete the left-recursivity in functions
+*/
+void function_p(): { }
+{
+  { System.out.println("function_p-> functions "); }
+	functions()
+	| { System.out.println("function_p-> { }"); }
+	{ }
+}
+
+
+/**
+ The function could be return function or normal function
+*/
+void type_function(): { }
+{
+  LOOKAHEAD(6)
+  { System.out.println("type_function-> function"); }
+	function()
+	|{ System.out.println("type_function-> return_function"); }
+	return_function() 
+}
+/**
+The return_function, has a diferent declaration and a diferent body
+*/
+void return_function(): { }
+{
+  { System.out.println("return_function-> return_declaration return_body"); }
+	return_declaration() return_body()
+}
+
+
+/**
+A function is composed by a declaration and a body
+*/
+void function(): {}
+{
+  { System.out.println("function-> declaration body"); }
+	declaration() body()
+}
+
+/**
+This initial declaration is common for the return_function and the normal function
+*/
+void initial_declaration(): { Token t; }
+{
+	{ System.out.println("initial_declaration - > FUNCTION signature"); }
+	t= < FUNCTION> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	} signature()
+}
+/**
+The differenece in the declarations, are in the part after the signature, because, the
+return signature has a different end
+*/
+void return_declaration(): {Token t; }
+{
+  { System.out.println("return_declaration-> initial_declaration return_signature"); }
+	initial_declaration() return_signature()
+}
+
+
+/**
+The declaration is composed of the token fn + the signature of the function
+*/
+void declaration(): {Token t;}
+{
+  { System.out.println("declaration-> initial_declaration normal_signature"); }
+	initial_declaration() normal_signature()
+}
+
+
+
+
+/**
+the signature starts with IDENTIFIER (the name of the function) a list of parameters between parenthesis and the final
+of the signature that can be a return or not.
+
+This part is common for the two types of functions
+*/
+void signature(): {Token t; Token t2; Token t3;}
+{
+	{ System.out.println("signature-> IDENTIFIER OPEN_PAR parameters CLOSE_PAR final_signature"); } 
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < OPEN_PAR > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	parameters()
+	t3= < CLOSE_PAR> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	final_signature()
+}
+
+
+void final_signature(): { }
+{
+  	LOOKAHEAD(2)
+	{ System.out.println("final_signature-> return_signature"); }
+	return_signature()
+	|
+	{ System.out.println("final_signature-> normal_signature"); }
+	normal_signature()   
+}
+
+
+
+/**
+ This part is only for the return fucntions, it means that a function
+ returns something
+ - > type
+*/
+void return_signature(): {Token t; Token t2; Token t3; Token t4;}
+{
+  LOOKAHEAD(2)
+  { System.out.println("return_signature-> RETURN TYPE"); } 
+	t= < RETURN> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < TYPE> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	|
+	{ System.out.println("return_signature-> RETURN OPEN_PAR TYPE CLOSE_PAR"); } 
+	t= < RETURN> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < OPEN_PAR > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < TYPE> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	t4= < CLOSE_PAR > {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	} 
+}
+
+
+
+/**
+THE FINAL SIGNATURE FOR THE OTHER FUNCTIONS COULD BE:
+ -> () //It means that there arent nothing returning
+ {}
+*/
+void normal_signature(): {Token t; Token t2; Token t3;}
+{
+{ System.out.println("normal_signature-> RETURN OPEN_PAR CLOSE_PAR"); } 
+	t= < RETURN> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < OPEN_PAR> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < CLOSE_PAR> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	
+	|{ System.out.println("normal_signature-> { }"); } 
+	{ } 
+}
+
+
+
+/**
+ parameters of a function, one or more attributes
+*/
+void parameters():{}
+{
+  { System.out.println("parameters-> attribute attribute_p"); } 
+	attribute() attribute_p()
+	| { System.out.println("parameters-> { }"); } { } 
+}
+
+
+
+
+/**
+aatributes separated by a coma
+*/
+void attribute_p(): {Token t;}
+{
+  	{ System.out.println("attribute_p-> COMA parameters attribute_p"); }
+  	t= < COMA> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	parameters() attribute_p()
+
+	| { System.out.println("attribute_p-> { }"); }  { } 
+}
+
+
+
+
+/**
+An attribute is like - >  x:i32
+*/
+void attribute(): {Token t; Token t2; Token t3;}
+{
+  	{ System.out.println("attribute-> IDENTIFIER POINTS TYPE"); } 
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < POINTS> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < TYPE> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	} 
+}
+
+
+
+ /**
+List_stmt could be one ore more stmt
+ */
+void list_stmt():{}
+{
+  {System.out.println("list_stmt -> stmt stmt_p");}
+  stmt() stmt_p()
+}
+
+/**
+The body of the return function is different from the other because IT ALWAYS ENDS WITH A RETURN STMT
+*/
+void return_body(): {Token t; Token t2;}
+{
+  LOOKAHEAD(2)
+  {System.out.println("body - > OPEN_CURL list_stmt return_stmt CLOSE_CURL");}
+	t= < OPEN_CURL> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	list_stmt()
+	return_stmt()
+	t2= < CLOSE_CURL> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+|   {System.out.println("body - > OPEN_CURL return_stmt CLOSE_CURL");}
+	t= < OPEN_CURL> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	return_stmt()
+	t2= < CLOSE_CURL> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+}
+
+/**
+Block of statements delimeted by curly parenthesis
+This is the body for the other functions
+FOR EXAMPLE
+{
+	let x = 12;
+}
+*/
+void body(): {Token t; Token t2;}
+{
+  {System.out.println("body - > OPEN_CURL list_stmt CLOSE_CURL");}
+	t= < OPEN_CURL> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	list_stmt()
+	t2= < CLOSE_CURL> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+}
+
+
+
+
+
+/**
+To delete the recursivity in list_stmt
+*/
+void stmt_p():{}
+{
+
+	 {System.out.println("stmt_p -> list_stmt");}
+	list_stmt()
+	|{System.out.println("stmt_p -> { }");}
+	{ }
+}
+
+
+
+
+/**
+There could be a lot of stmt:
+	assignment_stmt() - > __ = _____
+	declaration_stmt() - > type identifier;
+	functioncall() - > funcion1()
+	print_stmt() - > println!()
+	arrays_stmt() - > declaration of arrays or assignment of arrays
+	function_call_object() - > identifier.function()
+	if_stmt() - > if (){ }else { }
+	while_stmt() - > while () { }
+	increase_counter () - > i+
+	loop_stmt() - > loop;
+	for() - > for () { }
+	body() _ > To have { } in the middle of the code
+	assign_struct_stmt- > To assign a values to a structure
+*/
+void stmt():{Token t; Token t2;}
+{
+	 LOOKAHEAD(4)
+	 {System.out.println("stmt - > assignment_stmt");}
+	 assignment_stmt()
+	 |LOOKAHEAD(3)
+	 { System.out.println("stmt-> arrays_stmt"); }
+		arrays_stmt()
+	 |LOOKAHEAD(2)
+	  {System.out.println("stmt - > declaration_stmt");}
+	 	declaration_stmt()
+	 |LOOKAHEAD(2)
+	 {System.out.println("stmt - > function_call");}
+	 	function_call()
+	 	t= < SEMICOLON> {
+		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+	        symbolTable.addSymbolEntry(entry);
+		}//Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna funcion sin que sea final de linea x = fn()+3;
+ 	 |{ System.out.println("stmt -> print_stmt");}
+	 	print_stmt()
+	 |LOOKAHEAD(2)
+	 { System.out.println("stmt -> function_call_object");}
+		function_call_object()
+		t= < SEMICOLON > {
+		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+	        symbolTable.addSymbolEntry(entry);
+		}
+	 | { System.out.println("stmt-> if_stmt"); }
+		if_stmt()
+	 | { System.out.println("stmt-> while_stmt"); }
+		while_stmt()
+	 | { System.out.println("stmt-> increase_counter_stmt"); }
+		increase_counter_stmt()
+	 | { System.out.println("stmt-> loop_stmt"); }
+		loop_stmt()
+	 | { System.out.println("stmt-> for_stmt"); }
+		for_stmt()
+	 | { System.out.println("stmt-> body"); }
+		//Its used when a group of statements appears in the middle of the code delimeted by curly parenth
+		body()
+	 | { System.out.println("stmt-> assign_structure_stmt"); }
+		assign_structure_stmt()
+	
+}
+
+////RETURN STMT DECLARATION--------------------------------------------------------------------------------------------------------------------
+
+
+/**
+	The final stmt of a function that returns something
+	it could be only an operator without semicolon or
+	RETURN operator SEMICOLON
+*/
+void return_stmt(): {Token t1; Token t2; }
+{
+  {System.out.println("return_stmt - > return_stmt_p");}
+  return_stmt_p()
+|{System.out.println("return_stmt_p - > RETURN return_stmt_p SEMICOLON");}
+t1 = < RETURN > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);}
+return_stmt_p()
+
+t2 = < SEMICOLON > {
+	  	Position position1 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry1 = new SymbolTableEntry(token.image, position1);
+        symbolTable.addSymbolEntry(entry1);
+	}
+
+
+}
+
+/**
+The possible values that could be returned
+operand
+expresion
+*/
+void return_stmt_p(): { }
+{
+  LOOKAHEAD(2)
+  {System.out.println("return_stmt_p - > operand");}
+	operand()
+|{System.out.println("return_stmt_p - > expresion");}
+expresion()
+}
+
+
+
+
+///ASSIGNMENT STMT----------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+Assignment stmt that could be mutable
+let x = 3;
+let mut x=3;
+x=3;
+let x:i32 = 4
+let mut x: i32 = 4
+*/
+void assignment_stmt():{Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7;}
+{
+  {System.out.println("assignment_stmt  -> (declaration)? IDENTIFIER (<POINTS ><TYPE >)? ASSIGNMENT expresion SEMICOLON");}
+	(t= < LET> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	(t2= < MUT> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	})? )?
+	t3= < IDENTIFIER> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	(t4= < POINTS> {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	t5= < TYPE> {
+	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
+        symbolTable.addSymbolEntry(entry5);
+	}
+	)?
+	t6= < ASSIGNMENT> {
+	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
+        symbolTable.addSymbolEntry(entry6);
+	}
+	expresion()
+	 t7= < SEMICOLON > {
+	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
+        symbolTable.addSymbolEntry(entry7);
+	}
+}
+
+
+///DECLARATION_STMT-----------------------------------------------------------------------------------------------------------------------------
+
+/**
+Declaration stmt that could be mutable
+let x;
+let mut x;
+let x: i32;
+*/
+void declaration_stmt(): { Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7; Token t8;}
+{
+  {System.out.println("declaration_stmt  -> LET MUTABLE? IDENTIFIER (<POINTS ><TYPE >)? SEMICOLON");}
+	t= < LET > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	(t2= < MUT > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	)?
+	t3= < IDENTIFIER> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	(t4= < POINTS> {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	t5= < TYPE> {
+	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
+        symbolTable.addSymbolEntry(entry5);
+	}
+	)?
+	t6= < SEMICOLON > {
+	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
+        symbolTable.addSymbolEntry(entry6);
+	}
+}
+
+////OPERANDS-------------------------------------------------------------------------------------------------------------------------------
+
+/**
+Operands
+INT NUMBER
+REAL_NUMBER
+FUNCTION_CALL_OBJECT ----- identifier.fucntion()
+LITERAL_STRING
+FUNCTION_CALL
+IDENTIFIER
+TRUE_FALSE
+
+*/
+void operand():{Token t; Token t2; Token t3; Token t4; Token t5;}
+{
+  {System.out.println("operand -> INT_NUMBER");}
+  t= < INT_NUMBER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+  |{System.out.println("operand -> REAL_NUMBER");}
+  t2= < REAL_NUMBER > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+  |LOOKAHEAD(2)
+  {System.out.println("operand -> function_call_object");}
+	function_call_object()
+  | {System.out.println("operand -> LITERAL_STRING");}
+  t3= < LITERAL_STRING> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+   | LOOKAHEAD(2)
+   {System.out.println("operand -> function_call");}
+  function_call()
+   | {System.out.println("operand -> IDENTIFIER");}
+   t4= < IDENTIFIER> {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	|{System.out.println("operand -> TRUE_FALSE");}
+	t5= < TRUE_FALSE> {
+	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
+        symbolTable.addSymbolEntry(entry5);
+	}
+}
+
+
+///FUNCTION_CALL---------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+function_call - > function(parameters)
+*/
+void function_call():{Token t; Token t2; Token t3;}
+{
+  {System.out.println("function_call -> IDENTIFIER OPEN_PAR a_parameters CLOSE_PAR");}
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < OPEN_PAR > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	a_parameters()
+	t3= < CLOSE_PAR> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+}
+
+
+
+
+/**
+Parameters of a function call
+*/
+void a_parameters():{}
+{
+  {System.out.println("a_parameters -> operand a_parameters_p");}
+	operand()a_parameters_p()
+	|{System.out.println("a_parameters -> { }");}
+	 { }
+}
+
+
+
+
+/**
+To delete the recursivity in a_parameters
+*/
+void a_parameters_p():{Token t;}
+{
+  {System.out.println("a_parameters_p -> COMA a_parameters");}
+	t= < COMA > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	a_parameters()
+	
+	|{System.out.println("a_parameters_p -> { }");}
+	{ }
+}
+
+
+// PRINT_STMT-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+/**
+print_stmt :
+println!("This is an example")
+println!(" { }", 3)
+*/
+void print_stmt():{Token t; Token t2; Token t3; Token t4; Token t5; Token t6;}
+{
+  {System.out.println("print_stmt -> PRINT OPEN PAR LITERAL_STRING (COMA operand)? CLOSE_PAR SEMICOLON ");}
+	t= < PRINT > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < OPEN_PAR > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < LITERAL_STRING > {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	(t4= < COMA > {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	operand())?
+	t5= < CLOSE_PAR > {
+	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
+        symbolTable.addSymbolEntry(entry5);
+	}
+	t6= < SEMICOLON > {
+	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
+        symbolTable.addSymbolEntry(entry6);
+	}
+}
+
+
+////EXPRESIONS----------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+Expresion of type x+3+4...
+*/
+void expresion():{}
+{
+  {System.out.println("expresion - > mult_div_expresion expresion_p");}
+	multi_div_expresion() expresion_p()
+}
+
+
+
+
+/**
+ operand with another mult_div expr_p
+*/
+void multi_div_expresion():{}
+{
+  {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
+	operand() multi_div_expr_p()
+}
+
+
+
+
+
+/**
+	To create the operations
+*/
+void multi_div_expr_p():{Token t;}
+{
+  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
+	t= < MULT_DIV > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	operand() multi_div_expr_p()
+
+	|{System.out.println("multi_div_expr_p - > { }");}
+	 { }
+}
+
+
+
+
+
+/**
+	To create the operations
+*/
+void expresion_p():{Token t;}
+{
+  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
+	t= < ADD_MIN > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	operand() expresion_p()
+	
+	|{System.out.println("expresion_p -> { }");}
+	{ }
+}
+
+
+
+///FUNCTION_CALL_OBJECT-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+/**
+Call from an object.
+spaces.len()
+spaces.trim().size()
+*/
+void function_call_object():{Token t; Token t2;}
+{
+  {System.out.println("function_call_object - > IDENTIFIER (DOT FUNCTION_CALL)+");}
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	(t2= < DOT > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	function_call())+ //There could be more than one function call spaces.trim().len()
+}
+
+
+
+
+///IF_STMT-------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+/**
+	Create a conditional sentence
+*/
+void if_stmt():{Token t;}
+{
+  	{ System.out.println("if_stmt-> IF condition body_if"); }
+	t= < IF > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	condition() body_if()
+}
+
+
+
+
+/**
+	There could be diferent ends for the if
+	ELSE
+	ELSE IF...
+	NOTHING
+*/
+void final_if():{Token t; Token t2;}
+{
+  LOOKAHEAD(2)
+  { System.out.println("final_if-> ELSE IF condition body_if"); }
+	t= < ELSE > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < IF > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	condition() body_if()
+
+	| { System.out.println("final_if->ELSE body "); }
+	t= < ELSE > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	body()
+|  { System.out.println("final_if-> { }"); }
+	{}
+}
+
+
+/**
+Body of the if
+*/
+void body_if(): { }
+{
+  { System.out.println("body_if-> body final_if"); }
+	body()final_if()
+}
+
+
+
+/**
+The condition could be a comparaison or a boolean expresion
+*/
+void condition():{}
+{
+  LOOKAHEAD(2)
+  	{ System.out.println("condition-> comparison"); }
+	comparison()
+	| { System.out.println("condition-> boolean_expr"); } boolean_expr()
+	{ System.out.println("condition->  OPEN_PAR comparison CLOSE_PAR"); }
+	< OPEN_PAR > comparison() < CLOSE_PAR >
+	| { System.out.println("condition-> OPEN_PAR boolean_expr CLOSE_PAR"); } < OPEN_PAR > boolean_expr() < CLOSE_PAR > 
+}
+
+
+
+/**
+Comparaison x > 3
+*/
+void comparison():{Token t;}
+{
+  	{ System.out.println("comparison-> expresion RELATIONAL_OP expresion"); }
+	expresion()
+	t= < RELATIONAL_OP > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	expresion()
+}
+
+
+
+/**
+Boolean expresion
+*/
+void boolean_expr():{}
+{
+  	{ System.out.println("boolean_expr-> and_expr boolean_expr_p"); }
+	and_expr() boolean_expr_p()
+}
+
+
+
+/**
+To delete recursivity on boolean_expr
+*/
+void boolean_expr_p():{Token t;}
+{
+  	{ System.out.println("boolean_expr_p-> OR and_expr boolean_expr_p"); }
+	t= < OR > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	and_expr() boolean_expr_p()
+
+	| { System.out.println("boolean_expr_p-> { }"); } { }
+}
+
+
+
+/**
+And_expr
+*/
+void and_expr():{}
+{
+  	{ System.out.println("and_expr-> boolean_operand and_expr_p"); }
+	boolean_operand() and_expr_p()
+}
+
+
+
+/**
+To delete recursivity on and_expr
+*/
+void and_expr_p():{Token t;}
+{
+  { System.out.println("and_expr_p-> AND boolean_operand and_expr_p"); }
+  t= < AND > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	boolean_operand() and_expr_p()
+
+  | { System.out.println("and_expr_p-> { }"); } { }
+}
+
+
+
+/**
+	Operands of a boolean expresion
+	Comparaison
+	!operand
+	operand
+*/
+void boolean_operand():{Token t;}
+{
+  LOOKAHEAD(2)
+  	{ System.out.println("boolean_operand-> comparison"); }
+	comparison()
+
+	| { System.out.println("boolean_operand-> NEGATIONAL_OP operand"); }
+	t= < NEGATIONAL_OP > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	operand()
+
+	| { System.out.println("boolean_operand-> operand"); } operand()
+}
+
+
+////WILE_STMT---------------------------------------------------------------------------------------------------------------------------------
+
+/**
+loop While
+while
+condition
+body
+*/
+void while_stmt(): {Token t;}
+{
+  { System.out.println("while_stmt-> WHILE condition body_while"); }
+	t= < WHILE > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	condition() body()
+}
+
+/**
+To increase a counter, is also used in the loops
+*/
+void increase_counter_stmt(): {Token t; Token t2; Token t3; Token t4;}
+{
+	{ System.out.println("increase_counter_stmt-> IDENTIFIER ADD_MIN ASSIGNMENT expresion SEMICOLON"); }
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < ADD_MIN > {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < ASSIGNMENT > {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	expresion()
+	t4= < SEMICOLON > {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+}
+
+
+
+////LOOP_STMT-------------------------------------------------------------------------------------------------------------------
+
+
+/**
+loop body
+*/
+void loop_stmt(): {Token t;}
+{
+	{ System.out.println("loop_stmt-> LOOP body"); }
+	t= < LOOP > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	body()
+}
+
+
+
+//// FOR_STMT-----------------------------------------------------------------------------------------------
+
+/**
+For stmt that defines the loop for.
+*/
+void for_stmt(): { Token t; Token t2; Token t3; Token t4;}
+{
+  { System.out.println("for_stmt - > FOR IDENTIFIER IN IDENTIFIER body"); }
+	t= < FOR > {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < IDENTIFIER> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < IN > {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	t4= < IDENTIFIER> {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	body()
+}
+
+
+
+////ASSIGNATION OF VALUES TO STRUCTURES-------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -1241,7 +1406,7 @@ void assign_structure_stmt(): {Token t; Token t2; Token t3;}
 
 
 /**
-ASK THE RECURSIVITY
+List of the operands of the assignment of the structure
 */
 void list_operands(): {Token t;}
 {
@@ -1263,10 +1428,8 @@ void list_operands(): {Token t;}
 
 
 /**
-	 User {
+There could be two types
         email,
-        username,
-        active: true,
         sign_in_count: 1,
     }
 */
@@ -1291,15 +1454,15 @@ void operand_assign_structure(): {Token t; Token t2;}
 }
 
 
-
+////ARRAY----------------------------------------------------------------------------------------------------------
 
 /**
 	Create a array the structure is: let IDENTIFIER: [Type; length] asignation
 */
 void arrays_stmt(): {Token t;}
 {
-	{ System.out.println("arrays_stmt - > declaration_stmt assignment_array SEMICOLON"); }
-	declaration_stmt() assignment_array()
+  {System.out.println("array_stmt - > declaration_array final_array SEMICOLON");}
+declaration_array() final_array()
 	t= < SEMICOLON > {
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
@@ -1307,12 +1470,77 @@ void arrays_stmt(): {Token t;}
 	}
 }
 
+
 /**
-	Create de assignment in the array
+FINAL of the array
+In this way, an array stmt could be
+declaration+ assignment
+Only declaration
+*/
+void final_array(): { }
+{
+  {System.out.println("final_array - > assignment_array");}
+  assignment_array()
+|  {System.out.println("final_array - > { }");}
+ { }
+}
+
+
+/**
+Declaration of the array
+*/
+void declaration_array(): {Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7; Token t8; }
+{
+    {System.out.println("declaration_array - > LET IDENTIFIER POINTS OPEN_BRACK TYPE SEMICOLON INT_NUMBER CLOSE_BRACK");}
+	t= < LET> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}
+	t2= < IDENTIFIER> {
+	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
+        symbolTable.addSymbolEntry(entry2);
+	}
+	t3= < POINTS> {
+	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
+        symbolTable.addSymbolEntry(entry3);
+	}
+	t4= < OPEN_BRACK> {
+	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
+        symbolTable.addSymbolEntry(entry4);
+	}
+	t5= < TYPE> {
+	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
+        symbolTable.addSymbolEntry(entry5);
+	}
+	t6= < SEMICOLON > {
+	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
+        symbolTable.addSymbolEntry(entry6);
+	}
+	t7= < INT_NUMBER > {
+	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
+        symbolTable.addSymbolEntry(entry7);
+	}
+	t8= < CLOSE_BRACK > {
+	  	Position position8 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry8 = new SymbolTableEntry(token.image, position8);
+        symbolTable.addSymbolEntry(entry8);
+	}
+
+}
+
+/**
+	Create the assignment in the array
 */
 void assignment_array(): {Token t; Token t2; Token t3;}
 {
-	{ System.out.println("assignment_array- > ASSIGNMENT OPEN_BRACK operand COMA? CLOSE_BRACK"); }
+	{ System.out.println("assignment_array- > ASSIGNMENT OPEN_BRACK body_assignment_array CLOSE_BRACK"); }
 	t= < ASSIGNMENT > {
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
@@ -1348,3 +1576,5 @@ void body_assignment_array(): {Token t;}
 
 	| { System.out.println("body_assignment_array- > { }"); } { }
 }
+
+
