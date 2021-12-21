@@ -5,3 +5,8 @@
 /SimpleCharStream.java
 /Token.java
 /TokenMgrError.java
+/JJTRustState.java
+/Node.java
+/Rust.jj
+/RustTreeConstants.java
+/SimpleNode.java
