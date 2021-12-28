@@ -73,10 +73,8 @@ SKIP :
 
 TOKEN : /* OPERATORS */
 {
-	  <MULT: ("*") >
-	| <DIV: ("/"|"%")>
-	| <ADD: "+">
-	| <MIN: "-" >
+	  <MULT_DIV: ("*"|"/"|"%") >
+	| <ADD_MIN: ("+"|"-") >
 	| <RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
 	| < ASSIGNMENT: "=" >
 	| < RETURN: "->" >
@@ -731,7 +729,7 @@ void print_stmt() #print :{}
 /**
 Expresion of type x+3+4...
 */
-void expresion() #void:{}
+void expresion() #Add_Min (>1) :{}
 {
   {System.out.println("expresion - > mult_div_expresion expresion_p");}
 	multi_div_expresion() expresion_p() 
@@ -743,7 +741,7 @@ void expresion() #void:{}
 /**
  operand with another mult_div expr_p
 */
-void multi_div_expresion() #void :{}
+void multi_div_expresion() #Mult_Div (>1) :{}
 {
   {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
 	operand() multi_div_expr_p()
@@ -758,10 +756,8 @@ void multi_div_expresion() #void :{}
 */
 void multi_div_expr_p() #void :{}
 {
-  {System.out.println("multi_div_expr_p - > MULT operand multi_div_expr_p");}
-	< MULT > #Mult operand() multi_div_expr_p()
-	|{System.out.println("multi_div_expr_p - > DIV operand multi_div_expr_p");}
-	< DIV > #Div operand() multi_div_expr_p()  
+  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
+	< MULT_DIV > operand() multi_div_expr_p()
 	|{System.out.println("multi_div_expr_p - > { }");}
 	 { }
 }
@@ -773,12 +769,10 @@ void multi_div_expr_p() #void :{}
 /**
 	To create the operations
 */
-void expresion_p() #void:{Token t;}
+void expresion_p() #void :{Token t;}
 {
-  {System.out.println("expresion_p - > ADD operand expresion_p");}
-	< ADD > #Add multi_div_expresion() expresion_p() 
-	|{System.out.println("expresion_p - > MIN operand expresion_p");}
-	< MIN > #Min multi_div_expresion() expresion_p()  
+  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
+	< ADD_MIN > multi_div_expresion() expresion_p()  
 	|{System.out.println("expresion_p -> { }");}
 	{ }
 }
@@ -972,7 +966,7 @@ void increase_counter_stmt() #IncreaseCounter : {Token t; }
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
-	} < ADD > < ASSIGNMENT > expresion()< SEMICOLON > 
+	} < ADD_MIN > < ASSIGNMENT > expresion()< SEMICOLON > 
 }
 
 

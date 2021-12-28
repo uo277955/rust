@@ -77,10 +77,8 @@ SKIP :
 
 TOKEN : /* OPERATORS */
 {
-	  <MULT: ("*") >
-	| <DIV: ("/"|"%")>
-	| <ADD: "+">
-	| <MIN: "-" >
+	  <MULT_DIV: ("*"|"/"|"%") >
+	| <ADD_MIN: ("+"|"-") >
 	| <RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
 	| < ASSIGNMENT: "=" >
 	| < RETURN: "->" >
@@ -1202,10 +1200,36 @@ void print_stmt()        :{/*@bgen(jjtree) print */
 /**
 Expresion of type x+3+4...
 */
-void expresion()      :{}
-{
+void expresion()               :{/*@bgen(jjtree) #Add_Min(> 1) */
+  SimpleNode jjtn000 = new SimpleNode(JJTADD_MIN);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) #Add_Min(> 1) */
+  try {
+/*@egen*/
   {System.out.println("expresion - > mult_div_expresion expresion_p");}
-	multi_div_expresion() expresion_p() 
+	multi_div_expresion() expresion_p()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
+    }
+  }
+/*@egen*/ 
 }
 
 
@@ -1214,10 +1238,36 @@ void expresion()      :{}
 /**
  operand with another mult_div expr_p
 */
-void multi_div_expresion()       :{}
-{
+void multi_div_expresion()                :{/*@bgen(jjtree) #Mult_Div(> 1) */
+  SimpleNode jjtn000 = new SimpleNode(JJTMULT_DIV);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) #Mult_Div(> 1) */
+  try {
+/*@egen*/
   {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
-	operand() multi_div_expr_p()
+	operand() multi_div_expr_p()/*@bgen(jjtree)*/
+  } catch (Throwable jjte000) {
+    if (jjtc000) {
+      jjtree.clearNodeScope(jjtn000);
+      jjtc000 = false;
+    } else {
+      jjtree.popNode();
+    }
+    if (jjte000 instanceof RuntimeException) {
+      throw (RuntimeException)jjte000;
+    }
+    if (jjte000 instanceof ParseException) {
+      throw (ParseException)jjte000;
+    }
+    throw (Error)jjte000;
+  } finally {
+    if (jjtc000) {
+      jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
+    }
+  }
+/*@egen*/
 }
 
 
@@ -1229,36 +1279,8 @@ void multi_div_expresion()       :{}
 */
 void multi_div_expr_p()       :{}
 {
-  {System.out.println("multi_div_expr_p - > MULT operand multi_div_expr_p");}/*@bgen(jjtree) Mult */
-        {
-          SimpleNode jjtn001 = new SimpleNode(JJTMULT);
-          boolean jjtc001 = true;
-          jjtree.openNodeScope(jjtn001);
-        }
-        try {
-/*@egen*/
-	< MULT >/*@bgen(jjtree)*/
-        } finally {
-          if (jjtc001) {
-            jjtree.closeNodeScope(jjtn001, true);
-          }
-        }
-/*@egen*/       operand() multi_div_expr_p()
-	|{System.out.println("multi_div_expr_p - > DIV operand multi_div_expr_p");}/*@bgen(jjtree) Div */
-        {
-          SimpleNode jjtn002 = new SimpleNode(JJTDIV);
-          boolean jjtc002 = true;
-          jjtree.openNodeScope(jjtn002);
-        }
-        try {
-/*@egen*/
-	< DIV >/*@bgen(jjtree)*/
-        } finally {
-          if (jjtc002) {
-            jjtree.closeNodeScope(jjtn002, true);
-          }
-        }
-/*@egen*/      operand() multi_div_expr_p()  
+  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
+	< MULT_DIV > operand() multi_div_expr_p()
 	|{System.out.println("multi_div_expr_p - > { }");}
 	 { }
 }
@@ -1270,38 +1292,10 @@ void multi_div_expr_p()       :{}
 /**
 	To create the operations
 */
-void expresion_p()      :{Token t;}
+void expresion_p()       :{Token t;}
 {
-  {System.out.println("expresion_p - > ADD operand expresion_p");}/*@bgen(jjtree) Add */
-        {
-          SimpleNode jjtn001 = new SimpleNode(JJTADD);
-          boolean jjtc001 = true;
-          jjtree.openNodeScope(jjtn001);
-        }
-        try {
-/*@egen*/
-	< ADD >/*@bgen(jjtree)*/
-        } finally {
-          if (jjtc001) {
-            jjtree.closeNodeScope(jjtn001, true);
-          }
-        }
-/*@egen*/      multi_div_expresion() expresion_p() 
-	|{System.out.println("expresion_p - > MIN operand expresion_p");}/*@bgen(jjtree) Min */
-        {
-          SimpleNode jjtn002 = new SimpleNode(JJTMIN);
-          boolean jjtc002 = true;
-          jjtree.openNodeScope(jjtn002);
-        }
-        try {
-/*@egen*/
-	< MIN >/*@bgen(jjtree)*/
-        } finally {
-          if (jjtc002) {
-            jjtree.closeNodeScope(jjtn002, true);
-          }
-        }
-/*@egen*/      multi_div_expresion() expresion_p()  
+  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
+	< ADD_MIN > multi_div_expresion() expresion_p()  
 	|{System.out.println("expresion_p -> { }");}
 	{ }
 }
@@ -1750,7 +1744,7 @@ void increase_counter_stmt()                  : {/*@bgen(jjtree) IncreaseCounter
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
-	} < ADD > < ASSIGNMENT > expresion()< SEMICOLON >/*@bgen(jjtree)*/
+	} < ADD_MIN > < ASSIGNMENT > expresion()< SEMICOLON >/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
