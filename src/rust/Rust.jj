@@ -77,8 +77,10 @@ SKIP :
 
 TOKEN : /* OPERATORS */
 {
-	  <MULT_DIV: ("*"|"/"|"%") >
-	| <ADD_MIN: ("+"|"-") >
+	  <MULT: ("*") >
+	| <DIV: ("/"|"%")>
+	| <ADD: "+">
+	| <MIN: "-" >
 	| <RELATIONAL_OP:("<"|">"| ">="|"<="| "=="| "!=")>
 	| < ASSIGNMENT: "=" >
 	| < RETURN: "->" >
@@ -215,12 +217,12 @@ SimpleNode start(): {/*@bgen(jjtree) start */
 /**
 A program is composed of functions or composed by structures and functions
 */
-void program(): {/*@bgen(jjtree) program */
+void program()         : {/*@bgen(jjtree) Program */
   SimpleNode jjtn000 = new SimpleNode(JJTPROGRAM);
   boolean jjtc000 = true;
   jjtree.openNodeScope(jjtn000);
 /*@egen*/ }
-{/*@bgen(jjtree) program */
+{/*@bgen(jjtree) Program */
   try {
 /*@egen*/
   { System.out.println("program-> structures functions"); }
@@ -277,41 +279,16 @@ void struct_p()      : { }
 /**
 Declaration of the struct that is outside the body of the function
 */
-void struct(): {/*@bgen(jjtree) struct */
-                SimpleNode jjtn000 = new SimpleNode(JJTSTRUCT);
-                boolean jjtc000 = true;
-                jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4;}
-{/*@bgen(jjtree) struct */
+void struct()        : {/*@bgen(jjtree) Struct */
+  SimpleNode jjtn000 = new SimpleNode(JJTSTRUCT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) Struct */
         try {
 /*@egen*/
   	{System.out.println("struct - > STRUCT NAME_CLASS_STRUCTURE OPEN_CURL list_declaration_struct CLOSE_CURL");}
- 	 t= < STRUCT > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < NAME_CLASS_STRUCTURE > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < OPEN_CURL > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	list_declaration_struct()
-	t4= < CLOSE_CURL >/*@bgen(jjtree)*/
-                           {
-                             jjtree.closeNodeScope(jjtn000, true);
-                             jjtc000 = false;
-                           }
-/*@egen*/ {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}/*@bgen(jjtree)*/
+< STRUCT > < NAME_CLASS_STRUCTURE >< OPEN_CURL >list_declaration_struct()< CLOSE_CURL >/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -331,7 +308,7 @@ void struct(): {/*@bgen(jjtree) struct */
             jjtree.closeNodeScope(jjtn000, true);
           }
         }
-/*@egen*/
+/*@egen*/ 
  //The name of the struct must start by UPPER CASE, so i defined NAME_CLASS_STRUCTURE
 }
 
@@ -357,7 +334,7 @@ void declaration_struct()                 : {/*@bgen(jjtree) AttributeStruct */
                                              SimpleNode jjtn000 = new SimpleNode(JJTATTRIBUTESTRUCT);
                                              boolean jjtc000 = true;
                                              jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4;}
+/*@egen*/Token t;}
 {/*@bgen(jjtree) AttributeStruct */
   try {
 /*@egen*/
@@ -367,26 +344,7 @@ void declaration_struct()                 : {/*@bgen(jjtree) AttributeStruct */
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
 	}
-	t2= < POINTS > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < TYPE > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < COMA >/*@bgen(jjtree)*/
-                     {
-                       jjtree.closeNodeScope(jjtn000, true);
-                       jjtc000 = false;
-                     }
-/*@egen*/ {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}/*@bgen(jjtree)*/
+< POINTS > < TYPE >< COMA >/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -512,7 +470,7 @@ void function()           : {/*@bgen(jjtree) procedure */
 The differenece in the declarations, are in the part after the signature, because, the
 return signature has a different end
 */
-void return_declaration()      : {Token t; }
+void return_declaration()      : {}
 {
   { System.out.println("return_declaration-> initial_declaration return_signature"); }
 	initial_declaration() return_signature()
@@ -522,36 +480,10 @@ void return_declaration()      : {Token t; }
 /**
 The declaration is composed of the token fn + the signature of the function
 */
-void declaration()             : {/*@bgen(jjtree) declaration */
-                                  SimpleNode jjtn000 = new SimpleNode(JJTDECLARATION);
-                                  boolean jjtc000 = true;
-                                  jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) declaration */
-  try {
-/*@egen*/
+void declaration()      : {}
+{
   { System.out.println("declaration-> initial_declaration normal_signature"); }
-	initial_declaration() normal_signature()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+	initial_declaration() normal_signature()
 }
 
 
@@ -559,14 +491,10 @@ void declaration()             : {/*@bgen(jjtree) declaration */
 /**
 This initial declaration is common for the return_function and the normal function
 */
-void initial_declaration()      : { Token t; }
+void initial_declaration()      : { }
 {
 	{ System.out.println("initial_declaration - > FUNCTION signature"); }
-	t= < FUNCTION> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	} signature()
+	< FUNCTION> signature()
 }
 
 
@@ -583,7 +511,7 @@ void signature()            : {/*@bgen(jjtree) signature */
                                SimpleNode jjtn000 = new SimpleNode(JJTSIGNATURE);
                                boolean jjtc000 = true;
                                jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3;}
+/*@egen*/Token t; }
 {/*@bgen(jjtree) signature */
         try {
 /*@egen*/
@@ -593,22 +521,7 @@ void signature()            : {/*@bgen(jjtree) signature */
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
 	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	parameters()
-	t3= < CLOSE_PAR>/*@bgen(jjtree)*/
-                         {
-                           jjtree.closeNodeScope(jjtn000, true);
-                           jjtc000 = false;
-                         }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}/*@bgen(jjtree)*/
+	< OPEN_PAR > parameters()< CLOSE_PAR>/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -628,7 +541,7 @@ void signature()            : {/*@bgen(jjtree) signature */
             jjtree.closeNodeScope(jjtn000, true);
           }
         }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -638,57 +551,18 @@ void signature()            : {/*@bgen(jjtree) signature */
  - > type
 */
 void return_signature()                   : {/*@bgen(jjtree) return_value_type */
-                                             SimpleNode jjtn000 = new SimpleNode(JJTRETURN_VALUE_TYPE);
-                                             boolean jjtc000 = true;
-                                             jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4;}
+  SimpleNode jjtn000 = new SimpleNode(JJTRETURN_VALUE_TYPE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
 {/*@bgen(jjtree) return_value_type */
   try {
 /*@egen*/
   LOOKAHEAD(2)
   { System.out.println("return_signature-> RETURN TYPE"); } 
-	t= < RETURN> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < TYPE>/*@bgen(jjtree)*/
-                    {
-                      jjtree.closeNodeScope(jjtn000, true);
-                      jjtc000 = false;
-                    }
-/*@egen*/ {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	|
-	{ System.out.println("return_signature-> RETURN OPEN_PAR TYPE CLOSE_PAR"); } 
-	t= < RETURN> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < TYPE> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < CLOSE_PAR >/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}/*@bgen(jjtree)*/
+	< RETURN>< TYPE>
+	|{ System.out.println("return_signature-> RETURN OPEN_PAR TYPE CLOSE_PAR"); } 
+	< RETURN> < OPEN_PAR >< TYPE>< CLOSE_PAR >/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
@@ -704,49 +578,25 @@ THE FINAL SIGNATURE FOR THE OTHER FUNCTIONS COULD BE:
  -> () //It means that there arent nothing returning
  {}
 */
-void normal_signature()                         : {/*@bgen(jjtree) empty_return_value_type */
-                                                   SimpleNode jjtn000 = new SimpleNode(JJTEMPTY_RETURN_VALUE_TYPE);
-                                                   boolean jjtc000 = true;
-                                                   jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3;}
-{/*@bgen(jjtree) empty_return_value_type */
-try {
-/*@egen*/
-{ System.out.println("normal_signature-> RETURN OPEN_PAR CLOSE_PAR"); } 
-	t= < RETURN> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < CLOSE_PAR>/*@bgen(jjtree)*/
-                         {
-                           jjtree.closeNodeScope(jjtn000, true);
-                           jjtc000 = false;
-                         }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	
-	|{ System.out.println("normal_signature-> { }"); }/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/ 
-	{ }/*@bgen(jjtree)*/
-} finally {
-  if (jjtc000) {
-    jjtree.closeNodeScope(jjtn000, true);
-  }
-}
-/*@egen*/ 
+void normal_signature()      : {}
+{
+	{ System.out.println("normal_signature-> RETURN OPEN_PAR CLOSE_PAR"); } 
+	< RETURN> < OPEN_PAR>/*@bgen(jjtree) empty_return_value_type */
+                              {
+                                SimpleNode jjtn001 = new SimpleNode(JJTEMPTY_RETURN_VALUE_TYPE);
+                                boolean jjtc001 = true;
+                                jjtree.openNodeScope(jjtn001);
+                              }
+                              try {
+/*@egen*/ < CLOSE_PAR>/*@bgen(jjtree)*/
+                              } finally {
+                                if (jjtc001) {
+                                  jjtree.closeNodeScope(jjtn001, true);
+                                }
+                              }
+/*@egen*/                         
+	|{ System.out.println("normal_signature-> { }"); } 
+	{ } 
 }
 
 
@@ -768,21 +618,15 @@ void parameters()      :{}
 aatributes separated by a coma
 */
 void attribute_p()           : {/*@bgen(jjtree) parameter */
-                                SimpleNode jjtn000 = new SimpleNode(JJTPARAMETER);
-                                boolean jjtc000 = true;
-                                jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
+  SimpleNode jjtn000 = new SimpleNode(JJTPARAMETER);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
 {/*@bgen(jjtree) parameter */
         try {
 /*@egen*/
   	{ System.out.println("attribute_p-> COMA parameters attribute_p"); }
-  	t= < COMA> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	parameters() attribute_p()
-
+	< COMA>parameters() attribute_p()
 	| { System.out.println("attribute_p-> { }"); }/*@bgen(jjtree)*/
                                                         {
                                                           jjtree.closeNodeScope(jjtn000, true);
@@ -817,7 +661,7 @@ void attribute_p()           : {/*@bgen(jjtree) parameter */
 /**
 An attribute is like - >  x:i32
 */
-void attribute()      : {Token t; Token t2; Token t3;}
+void attribute()      : {Token t; }
 {
   	{ System.out.println("attribute-> IDENTIFIER POINTS TYPE"); } 
 	t= < IDENTIFIER> {
@@ -825,16 +669,7 @@ void attribute()      : {Token t; Token t2; Token t3;}
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
 	}
-	t2= < POINTS> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < TYPE> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	} 
+	< POINTS> < TYPE> 
 }
 
 
@@ -843,49 +678,18 @@ void attribute()      : {Token t; Token t2; Token t3;}
 The body of the return function is different from the other because IT ALWAYS ENDS WITH A RETURN STMT
 */
 void return_body()      : {/*@bgen(jjtree) body */
-                           SimpleNode jjtn000 = new SimpleNode(JJTBODY);
-                           boolean jjtc000 = true;
-                           jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2;}
+  SimpleNode jjtn000 = new SimpleNode(JJTBODY);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
 {/*@bgen(jjtree) body */
   try {
 /*@egen*/
-  LOOKAHEAD(2)
-  {System.out.println("body - > OPEN_CURL list_stmt return_stmt CLOSE_CURL");}
-	t= < OPEN_CURL> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	list_stmt()
-	return_stmt()
-	t2= < CLOSE_CURL>/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-|   {System.out.println("body - > OPEN_CURL return_stmt CLOSE_CURL");}
-	t= < OPEN_CURL> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	return_stmt()
-	t2= < CLOSE_CURL>/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}/*@bgen(jjtree)*/
+  LOOKAHEAD(5)
+  {System.out.println("body - > OPEN_CURL return_stmt CLOSE_CURL");}
+< OPEN_CURL> return_stmt()< CLOSE_CURL> 
+|   {System.out.println("body - > OPEN_CURL list_stmt return_stmt CLOSE_CURL");}
+< OPEN_CURL> list_stmt()return_stmt()< CLOSE_CURL>/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -917,30 +721,15 @@ FOR EXAMPLE
 }
 */
 void body()      : {/*@bgen(jjtree) body */
-                    SimpleNode jjtn000 = new SimpleNode(JJTBODY);
-                    boolean jjtc000 = true;
-                    jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2;}
+  SimpleNode jjtn000 = new SimpleNode(JJTBODY);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
 {/*@bgen(jjtree) body */
   try {
 /*@egen*/
   {System.out.println("body - > OPEN_CURL list_stmt CLOSE_CURL");}
-	t= < OPEN_CURL> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	list_stmt()
-	t2= < CLOSE_CURL>/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}/*@bgen(jjtree)*/
+  < OPEN_CURL> list_stmt()< CLOSE_CURL>/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -960,7 +749,7 @@ void body()      : {/*@bgen(jjtree) body */
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -970,7 +759,7 @@ List_stmt could be one ore more stmt
 void list_stmt()       :{}
 {
   {System.out.println("list_stmt -> stmt stmt_p");}
-  stmt() stmt_p()
+  stmt()stmt_p()
 }
 
 
@@ -983,7 +772,7 @@ To delete the recursivity in list_stmt
 void stmt_p()       :{}
 {
 
-	 {System.out.println("stmt_p -> list_stmt");}
+	{System.out.println("stmt_p -> list_stmt");}
 	list_stmt()
 	|{System.out.println("stmt_p -> { }");}
 	{ }
@@ -1008,7 +797,7 @@ There could be a lot of stmt:
 	body() _ > To have { } in the middle of the code
 	assign_struct_stmt- > To assign a values to a structure
 */
-void stmt()       :{Token t; Token t2;}
+void stmt()       :{}
 {
 	 LOOKAHEAD(4)
 	 {System.out.println("stmt - > assignment_stmt");}
@@ -1021,27 +810,18 @@ void stmt()       :{Token t; Token t2;}
 	 	declaration_stmt()
 	 |LOOKAHEAD(2)
 	 {System.out.println("stmt - > function_call");}
-	 	function_call()
-	 	t= < SEMICOLON> {
-		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-	        symbolTable.addSymbolEntry(entry);
-		}//Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna funcion sin que sea final de linea x = fn()+3;
+	 	function_call() < SEMICOLON > 
+//Pongo aqui el semicolon, porque en alguna operacion se puede usar la llamada auna funcion sin que sea final de linea x = fn()+3;
  	 |{ System.out.println("stmt -> print_stmt");}
 	 	print_stmt()
 	 |LOOKAHEAD(2)
 	 { System.out.println("stmt -> function_call_object");}
-		function_call_object()
-		t= < SEMICOLON > {
-		  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-	        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-	        symbolTable.addSymbolEntry(entry);
-		}
+		function_call_object() < SEMICOLON > 
 	 | { System.out.println("stmt-> if_stmt"); }
 		if_stmt()
 	 | { System.out.println("stmt-> while_stmt"); }
 		while_stmt()
-	 | { System.out.println("stmt-> increase_counter_stmt"); }
+	 |LOOKAHEAD(3){ System.out.println("stmt-> increase_counter_stmt"); }
 		increase_counter_stmt()
 	 | { System.out.println("stmt-> loop_stmt"); }
 		loop_stmt()
@@ -1052,6 +832,8 @@ void stmt()       :{Token t; Token t2;}
 		body()
 	 | { System.out.println("stmt-> assign_structure_stmt"); }
 		assign_structure_stmt()
+	| { System.out.println("stmt-> expresion"); }
+	expresion() < SEMICOLON > 
 	
 }
 
@@ -1063,24 +845,10 @@ void stmt()       :{Token t; Token t2;}
 	it could be only an operator without semicolon or
 	RETURN operator SEMICOLON
 */
-void return_stmt()       : {Token t1; Token t2; }
+void return_stmt()       : {}
 {
-  {System.out.println("return_stmt - > return_stmt_p");}
-  return_stmt_p()
-|{System.out.println("return_stmt_p - > RETURN return_stmt_p SEMICOLON");}
-t1 = < RETURN > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);}
-return_stmt_p()
-
-t2 = < SEMICOLON > {
-	  	Position position1 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry1 = new SymbolTableEntry(token.image, position1);
-        symbolTable.addSymbolEntry(entry1);
-	}
-
-
+{System.out.println("return_stmt_p - > RETURN return_stmt_p SEMICOLON");}
+< RETURN_ST > return_stmt_p()< SEMICOLON >
 }
 
 /**
@@ -1097,10 +865,12 @@ void return_stmt_p()              : {/*@bgen(jjtree) return_value */
   try {
 /*@egen*/
   LOOKAHEAD(2)
-  {System.out.println("return_stmt_p - > operand");}
-	operand()
-|{System.out.println("return_stmt_p - > expresion");}
-expresion()/*@bgen(jjtree)*/
+  {System.out.println("return_stmt_p - > expresion");}
+	expresion()
+|LOOKAHEAD(2){System.out.println("return_stmt_p - > operand");}
+operand()
+|{System.out.println("return_stmt_p - > increase_counter_stmt");}
+increase_counter_stmt()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1140,53 +910,17 @@ void assignment_stmt()                             :{/*@bgen(jjtree) assign_valu
                                                      SimpleNode jjtn000 = new SimpleNode(JJTASSIGN_VALUE_TO_A_VARIABLE);
                                                      boolean jjtc000 = true;
                                                      jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7;}
+/*@egen*/Token t; }
 {/*@bgen(jjtree) assign_value_to_a_variable */
   try {
 /*@egen*/
   {System.out.println("assignment_stmt  -> (declaration)? IDENTIFIER (<POINTS ><TYPE >)? ASSIGNMENT expresion SEMICOLON");}
-	(t= < LET> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	(t2= < MUT> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	})? )?
-	t3= < IDENTIFIER> {
+	(< LET> (< MUT>)? )? t=< IDENTIFIER> {
 	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
         symbolTable.addSymbolEntry(entry3);
 	}
-	(t4= < POINTS> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	)?
-	t6= < ASSIGNMENT> {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-	expresion()
-	 t7= < SEMICOLON >/*@bgen(jjtree)*/
-                           {
-                             jjtree.closeNodeScope(jjtn000, true);
-                             jjtc000 = false;
-                           }
-/*@egen*/ {
-	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
-        symbolTable.addSymbolEntry(entry7);
-	}/*@bgen(jjtree)*/
+	(< POINTS> < TYPE> )?< ASSIGNMENT>expresion()< SEMICOLON >/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1206,7 +940,7 @@ void assignment_stmt()                             :{/*@bgen(jjtree) assign_valu
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -1222,54 +956,24 @@ void declaration_stmt()                   : {/*@bgen(jjtree) declare_variable */
                                               SimpleNode jjtn000 = new SimpleNode(JJTDECLARE_VARIABLE);
                                               boolean jjtc000 = true;
                                               jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7; Token t8;}
+/*@egen*/ Token t;}
 {/*@bgen(jjtree) declare_variable */
   try {
 /*@egen*/
   {System.out.println("declaration_stmt  -> LET MUTABLE? IDENTIFIER (<POINTS ><TYPE >)? SEMICOLON");}
-	t= < LET > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	(t2= < MUT > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	)?
-	t3= < IDENTIFIER> {
+< LET > (< MUT > )?
+	t= < IDENTIFIER> {
 	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
         symbolTable.addSymbolEntry(entry3);
 	}
-	(t4= < POINTS> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	)?
-	t6= < SEMICOLON >/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}/*@bgen(jjtree)*/
+	(< POINTS> < TYPE>)? < SEMICOLON >/*@bgen(jjtree)*/
   } finally {
     if (jjtc000) {
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 ////OPERANDS-------------------------------------------------------------------------------------------------------------------------------
@@ -1285,95 +989,98 @@ IDENTIFIER
 TRUE_FALSE
 
 */
-void operand():{/*@bgen(jjtree) operand */
-                SimpleNode jjtn000 = new SimpleNode(JJTOPERAND);
-                boolean jjtc000 = true;
-                jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4; Token t5;}
-{/*@bgen(jjtree) operand */
-  try {
+void operand()      :{Token t;}
+{
+  {System.out.println("operand -> INT_NUMBER");}/*@bgen(jjtree) Integer */
+        {
+          SimpleNode jjtn001 = new SimpleNode(JJTINTEGER);
+          boolean jjtc001 = true;
+          jjtree.openNodeScope(jjtn001);
+        }
+        try {
 /*@egen*/
-  {System.out.println("operand -> INT_NUMBER");}
-  t= < INT_NUMBER>/*@bgen(jjtree)*/
-                   {
-                     jjtree.closeNodeScope(jjtn000, true);
-                     jjtc000 = false;
-                   }
-/*@egen*/ {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-  |{System.out.println("operand -> REAL_NUMBER");}
-  t2= < REAL_NUMBER >/*@bgen(jjtree)*/
-                      {
-                        jjtree.closeNodeScope(jjtn000, true);
-                        jjtc000 = false;
-                      }
-/*@egen*/ {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
+	< INT_NUMBER>/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc001) {
+            jjtree.closeNodeScope(jjtn001, true);
+          }
+        }
+/*@egen*/          
+  |{System.out.println("operand -> REAL_NUMBER");}/*@bgen(jjtree) Real */
+        {
+          SimpleNode jjtn002 = new SimpleNode(JJTREAL);
+          boolean jjtc002 = true;
+          jjtree.openNodeScope(jjtn002);
+        }
+        try {
+/*@egen*/
+	< REAL_NUMBER >/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc002) {
+            jjtree.closeNodeScope(jjtn002, true);
+          }
+        }
+/*@egen*/      
   |LOOKAHEAD(2)
   {System.out.println("operand -> function_call_object");}
 	function_call_object()
-  | {System.out.println("operand -> LITERAL_STRING");}
-  t3= < LITERAL_STRING>/*@bgen(jjtree)*/
-                        {
-                          jjtree.closeNodeScope(jjtn000, true);
-                          jjtc000 = false;
-                        }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
+  | {System.out.println("operand -> LITERAL_STRING");}/*@bgen(jjtree) String */
+        {
+          SimpleNode jjtn003 = new SimpleNode(JJTSTRING);
+          boolean jjtc003 = true;
+          jjtree.openNodeScope(jjtn003);
+        }
+        try {
+/*@egen*/
+	< LITERAL_STRING>/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc003) {
+            jjtree.closeNodeScope(jjtn003, true);
+          }
+        }
+/*@egen*/        
    | LOOKAHEAD(2)
    {System.out.println("operand -> function_call");}
   function_call()
    | {System.out.println("operand -> IDENTIFIER");}
-   t4= < IDENTIFIER>/*@bgen(jjtree)*/
-                     {
-                       jjtree.closeNodeScope(jjtn000, true);
-                       jjtc000 = false;
-                     }
+   t= < IDENTIFIER>/*@bgen(jjtree) Identifier */
+                    {
+                      SimpleNode jjtn004 = new SimpleNode(JJTIDENTIFIER);
+                      boolean jjtc004 = true;
+                      jjtree.openNodeScope(jjtn004);
+                    }
+                    try {
+/*@egen*//*@bgen(jjtree)*/
+                    {
+                      jjtree.closeNodeScope(jjtn004, true);
+                      jjtc004 = false;
+                    }
 /*@egen*/ {
 	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
         symbolTable.addSymbolEntry(entry4);
-	}
-	|{System.out.println("operand -> TRUE_FALSE");}
-	t5= < TRUE_FALSE>/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
 	}/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
+                    } finally {
+                      if (jjtc004) {
+                        jjtree.closeNodeScope(jjtn004, true);
+                      }
+                    }
+/*@egen*/            
+	|{System.out.println("operand -> TRUE_FALSE");}/*@bgen(jjtree) Boolean */
+        {
+          SimpleNode jjtn005 = new SimpleNode(JJTBOOLEAN);
+          boolean jjtc005 = true;
+          jjtree.openNodeScope(jjtn005);
+        }
+        try {
 /*@egen*/
+	< TRUE_FALSE>/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc005) {
+            jjtree.closeNodeScope(jjtn005, true);
+          }
+        }
+/*@egen*/         
 }
 
 
@@ -1383,11 +1090,11 @@ void operand():{/*@bgen(jjtree) operand */
 /**
 function_call - > function(parameters)
 */
-void function_call():{/*@bgen(jjtree) function_call */
-                      SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION_CALL);
-                      boolean jjtc000 = true;
-                      jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3;}
+void function_call()               :{/*@bgen(jjtree) function_call */
+                                     SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION_CALL);
+                                     boolean jjtc000 = true;
+                                     jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t;}
 {/*@bgen(jjtree) function_call */
   try {
 /*@egen*/
@@ -1397,22 +1104,7 @@ void function_call():{/*@bgen(jjtree) function_call */
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
 	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	a_parameters()
-	t3= < CLOSE_PAR>/*@bgen(jjtree)*/
-                         {
-                           jjtree.closeNodeScope(jjtn000, true);
-                           jjtc000 = false;
-                         }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}/*@bgen(jjtree)*/
+	< OPEN_PAR > a_parameters()< CLOSE_PAR>/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1432,7 +1124,7 @@ void function_call():{/*@bgen(jjtree) function_call */
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -1441,43 +1133,12 @@ void function_call():{/*@bgen(jjtree) function_call */
 /**
 Parameters of a function call
 */
-void a_parameters():{/*@bgen(jjtree) a_parameters */
-  SimpleNode jjtn000 = new SimpleNode(JJTA_PARAMETERS);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) a_parameters */
-  try {
-/*@egen*/
+void a_parameters()      :{}
+{
   {System.out.println("a_parameters -> operand a_parameters_p");}
 	operand()a_parameters_p()
-	|{System.out.println("a_parameters -> { }");}/*@bgen(jjtree)*/
-         {
-           jjtree.closeNodeScope(jjtn000, true);
-           jjtc000 = false;
-         }
-/*@egen*/
-	 { }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+	|{System.out.println("a_parameters -> { }");}
+	 { }
 }
 
 
@@ -1486,49 +1147,12 @@ void a_parameters():{/*@bgen(jjtree) a_parameters */
 /**
 To delete the recursivity in a_parameters
 */
-void a_parameters_p():{/*@bgen(jjtree) a_parameters_p */
-                       SimpleNode jjtn000 = new SimpleNode(JJTA_PARAMETERS_P);
-                       boolean jjtc000 = true;
-                       jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) a_parameters_p */
-  try {
-/*@egen*/
+void a_parameters_p()      :{}
+{
   {System.out.println("a_parameters_p -> COMA a_parameters");}
-	t= < COMA > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	a_parameters()
-	
-	|{System.out.println("a_parameters_p -> { }");}/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-	{ }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+	< COMA > a_parameters()
+	|{System.out.println("a_parameters_p -> { }");}
+	{ }
 }
 
 
@@ -1540,50 +1164,15 @@ println!("This is an example")
 println!(" { }", 3)
 */
 void print_stmt()        :{/*@bgen(jjtree) print */
-                           SimpleNode jjtn000 = new SimpleNode(JJTPRINT);
-                           boolean jjtc000 = true;
-                           jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4; Token t5; Token t6;}
+  SimpleNode jjtn000 = new SimpleNode(JJTPRINT);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
 {/*@bgen(jjtree) print */
   try {
 /*@egen*/
   {System.out.println("print_stmt -> PRINT OPEN PAR LITERAL_STRING (COMA operand)? CLOSE_PAR SEMICOLON ");}
-	t= < PRINT > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_PAR > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < LITERAL_STRING > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	(t4= < COMA > {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	operand())?
-	t5= < CLOSE_PAR > {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	t6= < SEMICOLON >/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}/*@bgen(jjtree)*/
+< PRINT >< OPEN_PAR > a_parameters()< CLOSE_PAR > < SEMICOLON >/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1603,7 +1192,7 @@ void print_stmt()        :{/*@bgen(jjtree) print */
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -1613,10 +1202,10 @@ void print_stmt()        :{/*@bgen(jjtree) print */
 /**
 Expresion of type x+3+4...
 */
-void expresion()       :{}
+void expresion()      :{}
 {
   {System.out.println("expresion - > mult_div_expresion expresion_p");}
-	multi_div_expresion() expresion_p()
+	multi_div_expresion() expresion_p() 
 }
 
 
@@ -1625,88 +1214,10 @@ void expresion()       :{}
 /**
  operand with another mult_div expr_p
 */
-void multi_div_expresion()          :{/*@bgen(jjtree) operand */
-  SimpleNode jjtn000 = new SimpleNode(JJTOPERAND);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/}
-{/*@bgen(jjtree) operand */
-  try {
-/*@egen*/
+void multi_div_expresion()       :{}
+{
   {System.out.println("multi_div_expresion - > operand multi_div_expr_p");}
-	operand() multi_div_expr_p()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
-}
-
-
-
-
-
-/**
-	To create the operations
-*/
-void multi_div_expr_p()           :{/*@bgen(jjtree) mult_div */
-                                    SimpleNode jjtn000 = new SimpleNode(JJTMULT_DIV);
-                                    boolean jjtc000 = true;
-                                    jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) mult_div */
-  try {
-/*@egen*/
-  {System.out.println("multi_div_expr_p - > MULT_DIV operand multi_div_expr_p");}
-	t= < MULT_DIV > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
 	operand() multi_div_expr_p()
-
-	|{System.out.println("multi_div_expr_p - > { }");}/*@bgen(jjtree)*/
-         {
-           jjtree.closeNodeScope(jjtn000, true);
-           jjtc000 = false;
-         }
-/*@egen*/
-	 { }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
 }
 
 
@@ -1716,49 +1227,83 @@ void multi_div_expr_p()           :{/*@bgen(jjtree) mult_div */
 /**
 	To create the operations
 */
-void expresion_p()          :{/*@bgen(jjtree) add_min */
-                              SimpleNode jjtn000 = new SimpleNode(JJTADD_MIN);
-                              boolean jjtc000 = true;
-                              jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) add_min */
-  try {
-/*@egen*/
-  {System.out.println("expresion_p - > ADD_MIN operand expresion_p");}
-	t= < ADD_MIN > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	operand() expresion_p()
-	
-	|{System.out.println("expresion_p -> { }");}/*@bgen(jjtree)*/
+void multi_div_expr_p()       :{}
+{
+  {System.out.println("multi_div_expr_p - > MULT operand multi_div_expr_p");}/*@bgen(jjtree) Mult */
         {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
+          SimpleNode jjtn001 = new SimpleNode(JJTMULT);
+          boolean jjtc001 = true;
+          jjtree.openNodeScope(jjtn001);
         }
+        try {
 /*@egen*/
-	{ }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
+	< MULT >/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc001) {
+            jjtree.closeNodeScope(jjtn001, true);
+          }
+        }
+/*@egen*/       operand() multi_div_expr_p()
+	|{System.out.println("multi_div_expr_p - > DIV operand multi_div_expr_p");}/*@bgen(jjtree) Div */
+        {
+          SimpleNode jjtn002 = new SimpleNode(JJTDIV);
+          boolean jjtc002 = true;
+          jjtree.openNodeScope(jjtn002);
+        }
+        try {
 /*@egen*/
+	< DIV >/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc002) {
+            jjtree.closeNodeScope(jjtn002, true);
+          }
+        }
+/*@egen*/      operand() multi_div_expr_p()  
+	|{System.out.println("multi_div_expr_p - > { }");}
+	 { }
+}
+
+
+
+
+
+/**
+	To create the operations
+*/
+void expresion_p()      :{Token t;}
+{
+  {System.out.println("expresion_p - > ADD operand expresion_p");}/*@bgen(jjtree) Add */
+        {
+          SimpleNode jjtn001 = new SimpleNode(JJTADD);
+          boolean jjtc001 = true;
+          jjtree.openNodeScope(jjtn001);
+        }
+        try {
+/*@egen*/
+	< ADD >/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc001) {
+            jjtree.closeNodeScope(jjtn001, true);
+          }
+        }
+/*@egen*/      multi_div_expresion() expresion_p() 
+	|{System.out.println("expresion_p - > MIN operand expresion_p");}/*@bgen(jjtree) Min */
+        {
+          SimpleNode jjtn002 = new SimpleNode(JJTMIN);
+          boolean jjtc002 = true;
+          jjtree.openNodeScope(jjtn002);
+        }
+        try {
+/*@egen*/
+	< MIN >/*@bgen(jjtree)*/
+        } finally {
+          if (jjtc002) {
+            jjtree.closeNodeScope(jjtn002, true);
+          }
+        }
+/*@egen*/      multi_div_expresion() expresion_p()  
+	|{System.out.println("expresion_p -> { }");}
+	{ }
 }
 
 
@@ -1771,11 +1316,11 @@ Call from an object.
 spaces.len()
 spaces.trim().size()
 */
-void function_call_object():{/*@bgen(jjtree) function_call_object */
-                             SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION_CALL_OBJECT);
-                             boolean jjtc000 = true;
-                             jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2;}
+void function_call_object()                      :{/*@bgen(jjtree) function_call_object */
+                                                   SimpleNode jjtn000 = new SimpleNode(JJTFUNCTION_CALL_OBJECT);
+                                                   boolean jjtc000 = true;
+                                                   jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t; }
 {/*@bgen(jjtree) function_call_object */
   try {
 /*@egen*/
@@ -1785,12 +1330,7 @@ void function_call_object():{/*@bgen(jjtree) function_call_object */
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
 	}
-	(t2= < DOT > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	function_call())+/*@bgen(jjtree)*/
+	(< DOT > function_call())+/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1823,21 +1363,16 @@ void function_call_object():{/*@bgen(jjtree) function_call_object */
 /**
 	Create a conditional sentence
 */
-void if_stmt()      :{/*@bgen(jjtree) if_ */
-                      SimpleNode jjtn000 = new SimpleNode(JJTIF_);
-                      boolean jjtc000 = true;
-                      jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) if_ */
+void if_stmt()     :{/*@bgen(jjtree) If */
+  SimpleNode jjtn000 = new SimpleNode(JJTIF);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) If */
         try {
 /*@egen*/
   	{ System.out.println("if_stmt-> IF condition body_if"); }
-	t= < IF > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	condition() body_if()/*@bgen(jjtree)*/
+< IF > condition() body_if()/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -1869,62 +1404,55 @@ void if_stmt()      :{/*@bgen(jjtree) if_ */
 	ELSE IF...
 	NOTHING
 */
-void final_if()                :{/*@bgen(jjtree) elseIf_or_else */
-                                 SimpleNode jjtn000 = new SimpleNode(JJTELSEIF_OR_ELSE);
-                                 boolean jjtc000 = true;
-                                 jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2;}
-{/*@bgen(jjtree) elseIf_or_else */
-  try {
-/*@egen*/
+void final_if()      :{}
+{
   LOOKAHEAD(2)
   { System.out.println("final_if-> ELSE IF condition body_if"); }
-	t= < ELSE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IF > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	condition() body_if()
-
+	< ELSE >/*@bgen(jjtree) else_if */
+                {
+                  SimpleNode jjtn001 = new SimpleNode(JJTELSE_IF);
+                  boolean jjtc001 = true;
+                  jjtree.openNodeScope(jjtn001);
+                }
+                try {
+/*@egen*/< IF >/*@bgen(jjtree)*/
+                } finally {
+                  if (jjtc001) {
+                    jjtree.closeNodeScope(jjtn001, true);
+                  }
+                }
+/*@egen*/          condition() body_if() 
 	| { System.out.println("final_if->ELSE body "); }
-	t= < ELSE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	body()
-|  { System.out.println("final_if-> { }"); }/*@bgen(jjtree)*/
-        {
-          jjtree.closeNodeScope(jjtn000, true);
-          jjtc000 = false;
-        }
-/*@egen*/
-	{}/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+	< ELSE >/*@bgen(jjtree) else_ */
+                {
+                  SimpleNode jjtn002 = new SimpleNode(JJTELSE_);
+                  boolean jjtc002 = true;
+                  jjtree.openNodeScope(jjtn002);
+                }
+                try {
+/*@egen*/body()/*@bgen(jjtree)*/
+                } catch (Throwable jjte002) {
+                  if (jjtc002) {
+                    jjtree.clearNodeScope(jjtn002);
+                    jjtc002 = false;
+                  } else {
+                    jjtree.popNode();
+                  }
+                  if (jjte002 instanceof RuntimeException) {
+                    throw (RuntimeException)jjte002;
+                  }
+                  if (jjte002 instanceof ParseException) {
+                    throw (ParseException)jjte002;
+                  }
+                  throw (Error)jjte002;
+                } finally {
+                  if (jjtc002) {
+                    jjtree.closeNodeScope(jjtn002, true);
+                  }
+                }
+/*@egen*/       
+|  { System.out.println("final_if-> { }"); }
+	{}
 }
 
 
@@ -1954,12 +1482,7 @@ void condition()           :{/*@bgen(jjtree) condition */
   	{ System.out.println("condition-> comparison"); }
 		comparison()
 	| { System.out.println("condition-> boolean_expr"); }
-		boolean_expr()
-	|LOOKAHEAD(2)
-	{ System.out.println("condition-> OPEN_PAR boolean_expr CLOSE_PAR"); }
-		< OPEN_PAR > boolean_expr() < CLOSE_PAR >
-	| { System.out.println("condition->  OPEN_PAR comparison CLOSE_PAR"); }
-		< OPEN_PAR > comparison() < CLOSE_PAR >/*@bgen(jjtree)*/
+		boolean_expr()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -1987,56 +1510,16 @@ void condition()           :{/*@bgen(jjtree) condition */
 /**
 Comparaison x > 3
 */
-void comparison()       :{Token t;}
-{
-  	{ System.out.println("comparison-> expresion RELATIONAL_OP expresion"); }
-	expresion()
-	t= < RELATIONAL_OP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	expresion()
-}
-
-
-
-/**
-Boolean expresion
-*/
-void boolean_expr()       :{}
-{
-  	{ System.out.println("boolean_expr-> and_expr boolean_expr_p"); }
-	and_expr() boolean_expr_p()
-}
-
-
-
-/**
-To delete recursivity on boolean_expr
-*/
-void boolean_expr_p()               :{/*@bgen(jjtree) boolean_expr */
-                                      SimpleNode jjtn000 = new SimpleNode(JJTBOOLEAN_EXPR);
-                                      boolean jjtc000 = true;
-                                      jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) boolean_expr */
+void comparison()              :{/*@bgen(jjtree) comparaison */
+  SimpleNode jjtn000 = new SimpleNode(JJTCOMPARAISON);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) comparaison */
         try {
 /*@egen*/
-  	{ System.out.println("boolean_expr_p-> OR and_expr boolean_expr_p"); }
-	t= < OR > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	and_expr() boolean_expr_p()
-
-	| { System.out.println("boolean_expr_p-> { }"); }/*@bgen(jjtree)*/
-                                                          {
-                                                            jjtree.closeNodeScope(jjtn000, true);
-                                                            jjtc000 = false;
-                                                          }
-/*@egen*/ { }/*@bgen(jjtree)*/
+  	{ System.out.println("comparison-> expresion RELATIONAL_OP expresion"); }
+	expresion()< RELATIONAL_OP >expresion()/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -2062,12 +1545,87 @@ void boolean_expr_p()               :{/*@bgen(jjtree) boolean_expr */
 
 
 /**
+Boolean expresion
+*/
+void boolean_expr()               :{/*@bgen(jjtree) #Or_expr(> 1) */
+  SimpleNode jjtn000 = new SimpleNode(JJTOR_EXPR);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) #Or_expr(> 1) */
+        try {
+/*@egen*/
+  	{ System.out.println("boolean_expr-> and_expr boolean_expr_p"); }
+	and_expr() boolean_expr_p()/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
+          }
+        }
+/*@egen*/
+}
+
+
+
+/**
+To delete recursivity on boolean_expr
+*/
+void boolean_expr_p()       :{}
+{
+  	{ System.out.println("boolean_expr_p-> OR and_expr boolean_expr_p"); }
+	< OR > and_expr() boolean_expr_p()
+	| { System.out.println("boolean_expr_p-> { }"); } { }
+}
+
+
+
+/**
 And_expr
 */
-void and_expr()       :{}
-{
+void and_expr()               :{/*@bgen(jjtree) #And_expr(> 1) */
+  SimpleNode jjtn000 = new SimpleNode(JJTAND_EXPR);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) #And_expr(> 1) */
+        try {
+/*@egen*/
   	{ System.out.println("and_expr-> boolean_operand and_expr_p"); }
-	boolean_operand() and_expr_p()
+	boolean_operand() and_expr_p()/*@bgen(jjtree)*/
+        } catch (Throwable jjte000) {
+          if (jjtc000) {
+            jjtree.clearNodeScope(jjtn000);
+            jjtc000 = false;
+          } else {
+            jjtree.popNode();
+          }
+          if (jjte000 instanceof RuntimeException) {
+            throw (RuntimeException)jjte000;
+          }
+          if (jjte000 instanceof ParseException) {
+            throw (ParseException)jjte000;
+          }
+          throw (Error)jjte000;
+        } finally {
+          if (jjtc000) {
+            jjtree.closeNodeScope(jjtn000, jjtree.nodeArity() > 1);
+          }
+        }
+/*@egen*/
 }
 
 
@@ -2075,48 +1633,14 @@ void and_expr()       :{}
 /**
 To delete recursivity on and_expr
 */
-void and_expr_p()      :{/*@bgen(jjtree) and */
-                         SimpleNode jjtn000 = new SimpleNode(JJTAND);
-                         boolean jjtc000 = true;
-                         jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) and */
-  try {
-/*@egen*/
-  { System.out.println("and_expr_p-> AND boolean_operand and_expr_p"); }
-  t= < AND > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	boolean_operand() and_expr_p()
-
-  | { System.out.println("and_expr_p-> { }"); }/*@bgen(jjtree)*/
-                                                {
-                                                  jjtree.closeNodeScope(jjtn000, true);
-                                                  jjtc000 = false;
-                                                }
-/*@egen*/ { }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+void and_expr_p()       :{}
+{
+  LOOKAHEAD(2){ System.out.println("and_expr_p-> AND boolean_operand and_expr_p"); }
+	< AND >boolean_operand() and_expr_p()
+	| { System.out.println("and_expr_p-> AND OPEN_PAR boolean_operand CLOSE_PAR and_expr_p"); }
+		< AND ><OPEN_PAR >boolean_operand()< CLOSE_PAR > and_expr_p()
+  	| { System.out.println("and_expr_p-> { }"); }
+  		{ }
 }
 
 
@@ -2127,47 +1651,46 @@ void and_expr_p()      :{/*@bgen(jjtree) and */
 	!operand
 	operand
 */
-void boolean_operand()                 :{/*@bgen(jjtree) boolean_operand */
-                                         SimpleNode jjtn000 = new SimpleNode(JJTBOOLEAN_OPERAND);
-                                         boolean jjtc000 = true;
-                                         jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) boolean_operand */
-  try {
-/*@egen*/
+void boolean_operand()      :{}
+{
   LOOKAHEAD(2)
   	{ System.out.println("boolean_operand-> comparison"); }
-	comparison()
+	comparison() 
 
 	| { System.out.println("boolean_operand-> NEGATIONAL_OP operand"); }
-	t= < NEGATIONAL_OP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	operand()
+	< NEGATIONAL_OP >/*@bgen(jjtree) negational_boolean */
+                         {
+                           SimpleNode jjtn001 = new SimpleNode(JJTNEGATIONAL_BOOLEAN);
+                           boolean jjtc001 = true;
+                           jjtree.openNodeScope(jjtn001);
+                         }
+                         try {
+/*@egen*/operand()/*@bgen(jjtree)*/
+                         } catch (Throwable jjte001) {
+                           if (jjtc001) {
+                             jjtree.clearNodeScope(jjtn001);
+                             jjtc001 = false;
+                           } else {
+                             jjtree.popNode();
+                           }
+                           if (jjte001 instanceof RuntimeException) {
+                             throw (RuntimeException)jjte001;
+                           }
+                           if (jjte001 instanceof ParseException) {
+                             throw (ParseException)jjte001;
+                           }
+                           throw (Error)jjte001;
+                         } finally {
+                           if (jjtc001) {
+                             jjtree.closeNodeScope(jjtn001, true);
+                           }
+                         }
+/*@egen*/                    
 
-	| { System.out.println("boolean_operand-> operand"); } operand()/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+	| { System.out.println("boolean_operand-> operand"); }
+	 operand()
+|{ System.out.println("boolean_operand-> OPEN_PAR boolean_expr CLOSE_PAR"); }
+< OPEN_PAR > boolean_expr() < CLOSE_PAR >
 }
 
 
@@ -2179,21 +1702,16 @@ while
 condition
 body
 */
-void while_stmt(): {/*@bgen(jjtree) while_stmt */
-                    SimpleNode jjtn000 = new SimpleNode(JJTWHILE_STMT);
-                    boolean jjtc000 = true;
-                    jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) while_stmt */
+void while_stmt()        :{/*@bgen(jjtree) While */
+  SimpleNode jjtn000 = new SimpleNode(JJTWHILE);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) While */
   try {
 /*@egen*/
   { System.out.println("while_stmt-> WHILE condition body_while"); }
-	t= < WHILE > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	condition() body()/*@bgen(jjtree)*/
+	< WHILE > condition() body()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2219,41 +1737,20 @@ void while_stmt(): {/*@bgen(jjtree) while_stmt */
 /**
 To increase a counter, is also used in the loops
 */
-void increase_counter_stmt(): {/*@bgen(jjtree) increase_counter_stmt */
-                               SimpleNode jjtn000 = new SimpleNode(JJTINCREASE_COUNTER_STMT);
-                               boolean jjtc000 = true;
-                               jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4;}
-{/*@bgen(jjtree) increase_counter_stmt */
+void increase_counter_stmt()                  : {/*@bgen(jjtree) IncreaseCounter */
+                                                 SimpleNode jjtn000 = new SimpleNode(JJTINCREASECOUNTER);
+                                                 boolean jjtc000 = true;
+                                                 jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t; }
+{/*@bgen(jjtree) IncreaseCounter */
         try {
 /*@egen*/
-	{ System.out.println("increase_counter_stmt-> IDENTIFIER ADD_MIN ASSIGNMENT expresion SEMICOLON"); }
+	{ System.out.println("increase_counter_stmt-> IDENTIFIER ADD ASSIGNMENT expresion SEMICOLON"); }
 	t= < IDENTIFIER> {
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
-	}
-	t2= < ADD_MIN > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < ASSIGNMENT > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	expresion()
-	t4= < SEMICOLON >/*@bgen(jjtree)*/
-                          {
-                            jjtree.closeNodeScope(jjtn000, true);
-                            jjtc000 = false;
-                          }
-/*@egen*/ {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}/*@bgen(jjtree)*/
+	} < ADD > < ASSIGNMENT > expresion()< SEMICOLON >/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -2273,7 +1770,7 @@ void increase_counter_stmt(): {/*@bgen(jjtree) increase_counter_stmt */
             jjtree.closeNodeScope(jjtn000, true);
           }
         }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -2284,21 +1781,16 @@ void increase_counter_stmt(): {/*@bgen(jjtree) increase_counter_stmt */
 /**
 loop body
 */
-void loop_stmt(): {/*@bgen(jjtree) loop_stmt */
-                   SimpleNode jjtn000 = new SimpleNode(JJTLOOP_STMT);
-                   boolean jjtc000 = true;
-                   jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) loop_stmt */
+void loop_stmt()      : {/*@bgen(jjtree) loop */
+  SimpleNode jjtn000 = new SimpleNode(JJTLOOP);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) loop */
         try {
 /*@egen*/
 	{ System.out.println("loop_stmt-> LOOP body"); }
-	t= < LOOP > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	body()/*@bgen(jjtree)*/
+	< LOOP > body()/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -2328,36 +1820,20 @@ void loop_stmt(): {/*@bgen(jjtree) loop_stmt */
 /**
 For stmt that defines the loop for.
 */
-void for_stmt(): {/*@bgen(jjtree) for_stmt */
-                   SimpleNode jjtn000 = new SimpleNode(JJTFOR_STMT);
-                   boolean jjtc000 = true;
-                   jjtree.openNodeScope(jjtn000);
-/*@egen*/ Token t; Token t2; Token t3; Token t4;}
-{/*@bgen(jjtree) for_stmt */
+void for_stmt()     : {/*@bgen(jjtree) For */
+                        SimpleNode jjtn000 = new SimpleNode(JJTFOR);
+                        boolean jjtc000 = true;
+                        jjtree.openNodeScope(jjtn000);
+/*@egen*/ Token t; }
+{/*@bgen(jjtree) For */
   try {
 /*@egen*/
   { System.out.println("for_stmt - > FOR IDENTIFIER IN IDENTIFIER body"); }
-	t= < FOR > {
+	< FOR > t= < IDENTIFIER> {
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IDENTIFIER> {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < IN > {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < IDENTIFIER> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	body()/*@bgen(jjtree)*/
+	}< IN > < IDENTIFIER> body()/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2395,12 +1871,12 @@ User {
         sign_in_count: 1,
     }
 */
-void assign_structure_stmt(): {/*@bgen(jjtree) assign_structure_stmt */
-                               SimpleNode jjtn000 = new SimpleNode(JJTASSIGN_STRUCTURE_STMT);
-                               boolean jjtc000 = true;
-                               jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3;}
-{/*@bgen(jjtree) assign_structure_stmt */
+void assign_structure_stmt()               : {/*@bgen(jjtree) assign_struct */
+                                              SimpleNode jjtn000 = new SimpleNode(JJTASSIGN_STRUCT);
+                                              boolean jjtc000 = true;
+                                              jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t;}
+{/*@bgen(jjtree) assign_struct */
   try {
 /*@egen*/
   { System.out.println("assign_structure_stmt - > NAME_CLASS_STRUCTURE OPEN_CURL list_operands CLOSE_CURL"); }
@@ -2408,132 +1884,7 @@ void assign_structure_stmt(): {/*@bgen(jjtree) assign_structure_stmt */
 	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
         symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_CURL > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	list_operands()
-	t3= < CLOSE_CURL >/*@bgen(jjtree)*/
-                           {
-                             jjtree.closeNodeScope(jjtn000, true);
-                             jjtc000 = false;
-                           }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
-}
-
-
-
-
-
-/**
-List of the operands of the assignment of the structure
-*/
-void list_operands(): {/*@bgen(jjtree) list_operands */
-                       SimpleNode jjtn000 = new SimpleNode(JJTLIST_OPERANDS);
-                       boolean jjtc000 = true;
-                       jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) list_operands */
-  try {
-/*@egen*/
-  { System.out.println("list_operands - > operand_assign_structure COMA list_operands"); }
-	operand_assign_structure()
-	t= < COMA > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	list_operands() 
-
-	|{ System.out.println("list_operands - > { }"); }/*@bgen(jjtree)*/
-         {
-           jjtree.closeNodeScope(jjtn000, true);
-           jjtc000 = false;
-         }
-/*@egen*/
-	 { }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
-}
-
-
-
-
-
-/**
-There could be two types
-        email,
-        sign_in_count: 1,
-    }
-*/
-void operand_assign_structure(): {/*@bgen(jjtree) operand_assign_structure */
-                                  SimpleNode jjtn000 = new SimpleNode(JJTOPERAND_ASSIGN_STRUCTURE);
-                                  boolean jjtc000 = true;
-                                  jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2;}
-{/*@bgen(jjtree) operand_assign_structure */
-  try {
-/*@egen*/
-  LOOKAHEAD(2)
-  { System.out.println("operand_assign_structure - > IDENTIFIER POINTS operand"); }
-	t= < IDENTIFIER> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < POINTS > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	operand()
-
-	|{ System.out.println("operand_assign_structure - >operand"); }
-	operand()/*@bgen(jjtree)*/
+	}< OPEN_CURL >list_operands()< CLOSE_CURL >/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2557,31 +1908,59 @@ void operand_assign_structure(): {/*@bgen(jjtree) operand_assign_structure */
 }
 
 
+/**
+List of the operands of the assignment of the structure
+*/
+void list_operands()      : {}
+{
+  { System.out.println("list_operands - > operand_assign_structure COMA list_operands"); }
+	operand_assign_structure()
+	< COMA > list_operands() 
+
+	|{ System.out.println("list_operands - > { }"); }
+	 { }
+}
+
+
+
+
+
+/**
+There could be two types
+        email,
+        sign_in_count: 1,
+    }
+*/
+void operand_assign_structure()      : {Token t; }
+{
+  LOOKAHEAD(2)
+  { System.out.println("operand_assign_structure - > IDENTIFIER POINTS operand"); }
+	t= < IDENTIFIER> {
+	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
+        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
+        symbolTable.addSymbolEntry(entry);
+	}< POINTS > operand()
+
+	|{ System.out.println("operand_assign_structure - >operand"); }
+	operand() 
+}
+
+
 ////ARRAY----------------------------------------------------------------------------------------------------------
 
 /**
 	Create a array the structure is: let IDENTIFIER: [Type; length] asignation
 */
-void arrays_stmt(): {/*@bgen(jjtree) arrays_stmt */
-                     SimpleNode jjtn000 = new SimpleNode(JJTARRAYS_STMT);
-                     boolean jjtc000 = true;
-                     jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) arrays_stmt */
+void arrays_stmt()       : {/*@bgen(jjtree) Array */
+  SimpleNode jjtn000 = new SimpleNode(JJTARRAY);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) Array */
   try {
 /*@egen*/
   {System.out.println("array_stmt - > declaration_array final_array SEMICOLON");}
-declaration_array() final_array()
-	t= < SEMICOLON >/*@bgen(jjtree)*/
-                         {
-                           jjtree.closeNodeScope(jjtn000, true);
-                           jjtc000 = false;
-                         }
-/*@egen*/ {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}/*@bgen(jjtree)*/
+	declaration_array() final_array() < SEMICOLON >/*@bgen(jjtree)*/
   } catch (Throwable jjte000) {
     if (jjtc000) {
       jjtree.clearNodeScope(jjtn000);
@@ -2601,7 +1980,7 @@ declaration_array() final_array()
       jjtree.closeNodeScope(jjtn000, true);
     }
   }
-/*@egen*/
+/*@egen*/ 
 }
 
 
@@ -2611,145 +1990,54 @@ In this way, an array stmt could be
 declaration+ assignment
 Only declaration
 */
-void final_array(): {/*@bgen(jjtree) final_array */
-  SimpleNode jjtn000 = new SimpleNode(JJTFINAL_ARRAY);
-  boolean jjtc000 = true;
-  jjtree.openNodeScope(jjtn000);
-/*@egen*/ }
-{/*@bgen(jjtree) final_array */
-  try {
-/*@egen*/
+void final_array()      : { }
+{
   {System.out.println("final_array - > assignment_array");}
   assignment_array()
-|  {System.out.println("final_array - > { }");}/*@bgen(jjtree)*/
- {
-   jjtree.closeNodeScope(jjtn000, true);
-   jjtc000 = false;
- }
-/*@egen*/
- { }/*@bgen(jjtree)*/
-  } catch (Throwable jjte000) {
-    if (jjtc000) {
-      jjtree.clearNodeScope(jjtn000);
-      jjtc000 = false;
-    } else {
-      jjtree.popNode();
-    }
-    if (jjte000 instanceof RuntimeException) {
-      throw (RuntimeException)jjte000;
-    }
-    if (jjte000 instanceof ParseException) {
-      throw (ParseException)jjte000;
-    }
-    throw (Error)jjte000;
-  } finally {
-    if (jjtc000) {
-      jjtree.closeNodeScope(jjtn000, true);
-    }
-  }
-/*@egen*/
+|  {System.out.println("final_array - > { }");}
+ { }
 }
 
 
 /**
 Declaration of the array
 */
-void declaration_array(): {/*@bgen(jjtree) declaration_array */
-                           SimpleNode jjtn000 = new SimpleNode(JJTDECLARATION_ARRAY);
-                           boolean jjtc000 = true;
-                           jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3; Token t4; Token t5; Token t6; Token t7; Token t8; }
-{/*@bgen(jjtree) declaration_array */
+void declaration_array()                   : {/*@bgen(jjtree) Declaration_Array */
+                                              SimpleNode jjtn000 = new SimpleNode(JJTDECLARATION_ARRAY);
+                                              boolean jjtc000 = true;
+                                              jjtree.openNodeScope(jjtn000);
+/*@egen*/Token t; }
+{/*@bgen(jjtree) Declaration_Array */
     try {
 /*@egen*/
     {System.out.println("declaration_array - > LET IDENTIFIER POINTS OPEN_BRACK TYPE SEMICOLON INT_NUMBER CLOSE_BRACK");}
-	t= < LET> {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < IDENTIFIER> {
+	< LET>
+	t= < IDENTIFIER> {
 	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
         SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
         symbolTable.addSymbolEntry(entry2);
-	}
-	t3= < POINTS> {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}
-	t4= < OPEN_BRACK> {
-	  	Position position4 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry4 = new SymbolTableEntry(token.image, position4);
-        symbolTable.addSymbolEntry(entry4);
-	}
-	t5= < TYPE> {
-	  	Position position5 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry5 = new SymbolTableEntry(token.image, position5);
-        symbolTable.addSymbolEntry(entry5);
-	}
-	t6= < SEMICOLON > {
-	  	Position position6 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry6 = new SymbolTableEntry(token.image, position6);
-        symbolTable.addSymbolEntry(entry6);
-	}
-	t7= < INT_NUMBER > {
-	  	Position position7 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry7 = new SymbolTableEntry(token.image, position7);
-        symbolTable.addSymbolEntry(entry7);
-	}
-	t8= < CLOSE_BRACK >/*@bgen(jjtree)*/
-                            {
-                              jjtree.closeNodeScope(jjtn000, true);
-                              jjtc000 = false;
-                            }
-/*@egen*/ {
-	  	Position position8 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry8 = new SymbolTableEntry(token.image, position8);
-        symbolTable.addSymbolEntry(entry8);
-	}/*@bgen(jjtree)*/
+	} < POINTS> < OPEN_BRACK>< TYPE> < SEMICOLON > < INT_NUMBER >< CLOSE_BRACK >/*@bgen(jjtree)*/
     } finally {
       if (jjtc000) {
         jjtree.closeNodeScope(jjtn000, true);
       }
     }
 /*@egen*/
-
 }
 
 /**
 	Create the assignment in the array
 */
-void assignment_array(): {/*@bgen(jjtree) assignment_array */
-                          SimpleNode jjtn000 = new SimpleNode(JJTASSIGNMENT_ARRAY);
-                          boolean jjtc000 = true;
-                          jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t; Token t2; Token t3;}
-{/*@bgen(jjtree) assignment_array */
+void assignment_array()                      : {/*@bgen(jjtree) Initialization_array */
+  SimpleNode jjtn000 = new SimpleNode(JJTINITIALIZATION_ARRAY);
+  boolean jjtc000 = true;
+  jjtree.openNodeScope(jjtn000);
+/*@egen*/}
+{/*@bgen(jjtree) Initialization_array */
         try {
 /*@egen*/
 	{ System.out.println("assignment_array- > ASSIGNMENT OPEN_BRACK body_assignment_array CLOSE_BRACK"); }
-	t= < ASSIGNMENT > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	t2= < OPEN_BRACK > {
-	  	Position position2 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry2 = new SymbolTableEntry(token.image, position2);
-        symbolTable.addSymbolEntry(entry2);
-	}
-	body_assignment_array()
-	t3= < CLOSE_BRACK >/*@bgen(jjtree)*/
-                            {
-                              jjtree.closeNodeScope(jjtn000, true);
-                              jjtc000 = false;
-                            }
-/*@egen*/ {
-	  	Position position3 = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry3 = new SymbolTableEntry(token.image, position3);
-        symbolTable.addSymbolEntry(entry3);
-	}/*@bgen(jjtree)*/
+	< ASSIGNMENT > <OPEN_BRACK > body_assignment_array() < CLOSE_BRACK >/*@bgen(jjtree)*/
         } catch (Throwable jjte000) {
           if (jjtc000) {
             jjtree.clearNodeScope(jjtn000);
@@ -2775,50 +2063,12 @@ void assignment_array(): {/*@bgen(jjtree) assignment_array */
 /**
 	Create the body of the assignment array: = [1,pita,morcilles,gatu,8]
 */
-void body_assignment_array(): {/*@bgen(jjtree) body_assignment_array */
-                               SimpleNode jjtn000 = new SimpleNode(JJTBODY_ASSIGNMENT_ARRAY);
-                               boolean jjtc000 = true;
-                               jjtree.openNodeScope(jjtn000);
-/*@egen*/Token t;}
-{/*@bgen(jjtree) body_assignment_array */
-        try {
-/*@egen*/
+void body_assignment_array()     : {}
+{
 	{ System.out.println("body_assignment_array- > operand COMA?"); }
-	 operand()
-	 (t= < COMA > {
-	  	Position position = new Position(token.beginLine, token.beginColumn, token.endLine, token.endColumn);
-        SymbolTableEntry entry = new SymbolTableEntry(token.image, position);
-        symbolTable.addSymbolEntry(entry);
-	}
-	)?
-	body_assignment_array()
+	 operand()(< COMA >)?body_assignment_array()
 
-	| { System.out.println("body_assignment_array- > { }"); }/*@bgen(jjtree)*/
-                                                                  {
-                                                                    jjtree.closeNodeScope(jjtn000, true);
-                                                                    jjtc000 = false;
-                                                                  }
-/*@egen*/ { }/*@bgen(jjtree)*/
-        } catch (Throwable jjte000) {
-          if (jjtc000) {
-            jjtree.clearNodeScope(jjtn000);
-            jjtc000 = false;
-          } else {
-            jjtree.popNode();
-          }
-          if (jjte000 instanceof RuntimeException) {
-            throw (RuntimeException)jjte000;
-          }
-          if (jjte000 instanceof ParseException) {
-            throw (ParseException)jjte000;
-          }
-          throw (Error)jjte000;
-        } finally {
-          if (jjtc000) {
-            jjtree.closeNodeScope(jjtn000, true);
-          }
-        }
-/*@egen*/
+	| { System.out.println("body_assignment_array- > { }"); } { }
 }
 
 

@@ -30,7 +30,7 @@ fn fibonacci_reccursive(n: i32) -> u64 {
  	println!("fibonacci_reccursive(n - 1) + fibonacci_reccursive(n - 2)");
  }
  
-  9999999999999999999999999999999999
+  return 9999999999999999999999999999999999;
 }
 
 
@@ -52,7 +52,7 @@ fn main() {
 
 }
 let xs: [String; 5];
-let xs: [String; 5] = [1, pita, morcilles, gatu, 8];
+let ys: [String; 6] = [1, pita, morcilles, gatu, 8, lol];
 
     // remainder
     let remainder = 43 % 5;
@@ -74,6 +74,11 @@ let xs: [String; 5] = [1, pita, morcilles, gatu, 8];
     
      if x+1==2{
     	x =3;
+    }
+    
+    while n>=10 {
+    	println!("A ver si esto funciona");
+    	n+=1;
     }
 
 }
